@@ -144,7 +144,10 @@ class ArenaTeam
         void SetEmblem(uint32 backgroundColor, uint32 emblemStyle, uint32 emblemColor, uint32 borderStyle, uint32 borderColor);
 
         size_t GetMembersSize() const         { return m_members.size(); }
-        size_t GetMaxMembersSize() const      { return size_t(GetType() * 2); }
+        size_t GetMaxMembersSize() const
+        {
+            return GetType() == ARENA_TYPE_5v5 ? 1 : size_t(GetType() * 2);
+        }
         bool   Empty() const                  { return m_members.empty(); }
         MemberList& GetMembers()              { return m_members; }
         bool HaveMember(ObjectGuid guid) const;
