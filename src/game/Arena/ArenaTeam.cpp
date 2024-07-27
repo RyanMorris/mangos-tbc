@@ -105,7 +105,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
     std::string plName;
     uint8 plClass;
 
-    // arena team is full (can't have more than type * 2 players!)
+    // arena team is full (can't have more than type * 2 players! (or 1, custom 1v1 mode))
     if (GetMembersSize() >= GetMaxMembersSize())
         return false;
 
@@ -262,7 +262,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult* arenaTeamMembersResult)
             continue;
         }
 
-        // arena team can't be > 2 * arenatype (2 for 2x2, 3 for 3x3, 5 for 5x5)
+        // arena team can't be > 2 * arenatype (1 for 1v1, 2 for 2x2, 3 for 3x3, 5 for 5x5)
         if (GetMembersSize() >= GetMaxMembersSize())
             return false;
 
@@ -521,9 +521,10 @@ uint8 ArenaTeam::GetSlotByType(ArenaType type)
 {
     switch (type)
     {
-        case ARENA_TYPE_2v2: return 0;
-        case ARENA_TYPE_3v3: return 1;
-        case ARENA_TYPE_5v5: return 2;
+        case ARENA_TYPE_1v1: return 0;
+        case ARENA_TYPE_2v2: return 1;
+        case ARENA_TYPE_3v3: return 2;
+        case ARENA_TYPE_5v5: return 3;
         default:
             break;
     }
@@ -559,6 +560,8 @@ uint32 ArenaTeam::GetPoints(uint32 MemberRating)
         points = 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
 
     // type penalties for <5v5 teams
+    if (m_Type == ARENA_TYPE_1v1)
+        points *= 0.50f;
     if (m_Type == ARENA_TYPE_2v2)
         points *= 0.76f;
     else if (m_Type == ARENA_TYPE_3v3)

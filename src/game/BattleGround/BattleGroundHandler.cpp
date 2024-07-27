@@ -649,7 +649,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
     // recv_data.hexlike();
 
     ObjectGuid guid;                                        // arena Battlemaster guid
-    uint8 arenaslot;                                        // 2v2, 3v3 or 5v5
+    uint8 arenaslot;                                        // 1v1, 2v2, 3v3 or 5v5
     uint8 asGroup;                                          // asGroup
     uint8 isRated;                                          // isRated
 
@@ -672,14 +672,16 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
     switch (arenaslot)
     {
         case 0:
-            arenatype = ARENA_TYPE_2v2;
+            arenatype = ARENA_TYPE_1v1;
             break;
         case 1:
-            arenatype = ARENA_TYPE_3v3;
+            arenatype = ARENA_TYPE_2v2;
             break;
         case 2:
-            arenatype = ARENA_TYPE_5v5;
+            arenatype = ARENA_TYPE_3v3;
             break;
+        case 3:
+            arenatype = ARENA_TYPE_5v5;
         default:
             sLog.outError("Unknown arena slot %u at HandleBattlemasterJoinArena()", arenaslot);
             return;
@@ -703,8 +705,8 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
     if (!asGroup)
     {
         // you can't join in this way by client
-        if (isRated)
-            return;
+        //if (isRated)
+        //    return;
 
         // check if already in queue
         if (_player->GetBattleGroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES)
@@ -767,25 +769,29 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
         }
         // get the team rating for queue
         arenaRating = at->GetRating();
-        // the arena team id must match for everyone in the group
-        // get the personal ratings for queue
-        uint32 avg_pers_rating = 0;
-
-        for (const auto& citr : group->GetMemberSlots())
+        
+        if (arenatype != ARENA_TYPE_1v1)
         {
-            ArenaTeamMember const* at_member = at->GetMember(citr.guid);
-            if (!at_member)                                 // group member joining to arena must be in leader arena team
-                return;
+            // the arena team id must match for everyone in the group
+            // get the personal ratings for queue
+            uint32 avg_pers_rating = 0;
 
-            // calc avg personal rating
-            avg_pers_rating += at_member->personal_rating;
+            for (const auto& citr : group->GetMemberSlots())
+            {
+                ArenaTeamMember const* at_member = at->GetMember(citr.guid);
+                if (!at_member)                                 // group member joining to arena must be in leader arena team
+                    return;
+
+                // calc avg personal rating
+                avg_pers_rating += at_member->personal_rating;
+            }
+
+            avg_pers_rating /= group->GetMembersCount();
+
+            // if avg personal rating is more than 150 points below the teams rating, the team will be queued against an opponent matching or similar to the average personal rating
+            if (avg_pers_rating + 150 < arenaRating)
+                arenaRating = avg_pers_rating;
         }
-
-        avg_pers_rating /= group->GetMembersCount();
-
-        // if avg personal rating is more than 150 points below the teams rating, the team will be queued against an opponent matching or similar to the average personal rating
-        if (avg_pers_rating + 150 < arenaRating)
-            arenaRating = avg_pers_rating;
     }
 
     BattleGroundQueue& bgQueue = sBattleGroundMgr.m_battleGroundQueues[bgQueueTypeId];
@@ -824,6 +830,11 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
     }
     else
     {
+        if (arenatype == ARENA_TYPE_1v1)
+        {
+            // set arena rated type to show correct minimap arena icon
+            bg->SetRated(isRated != 0);
+        }
         GroupQueueInfo* ginfo = bgQueue.AddGroup(_player, nullptr, bgTypeId, bgBracketId, arenatype, isRated != 0, false, 0, arenaRating, ateamId);
         uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, _player->GetBattleGroundBracketIdFromLevel(bgTypeId));
         uint32 queueSlot = _player->AddBattleGroundQueueId(bgQueueTypeId);

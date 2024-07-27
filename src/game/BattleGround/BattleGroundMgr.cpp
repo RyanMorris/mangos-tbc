@@ -2391,6 +2391,8 @@ BattleGroundQueueTypeId BattleGroundMgr::BgQueueTypeId(BattleGroundTypeId bgType
         case BATTLEGROUND_BE:
             switch (arenaType)
             {
+                case ARENA_TYPE_1v1:
+                    return BATTLEGROUND_QUEUE_1v1;
                 case ARENA_TYPE_2v2:
                     return BATTLEGROUND_QUEUE_2v2;
                 case ARENA_TYPE_3v3:
