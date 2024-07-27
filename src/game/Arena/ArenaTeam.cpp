@@ -558,11 +558,13 @@ uint32 ArenaTeam::GetPoints(uint32 MemberRating)
     else
         points = 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
 
-    // type penalties for <5v5 teams
-    if (m_Type == ARENA_TYPE_2v2)
-        points *= 0.76f;
-    else if (m_Type == ARENA_TYPE_3v3)
-        points *= 0.88f;
+    // type penalties for <3v3 teams
+    //if (m_Type == ARENA_TYPE_5v5)
+    //    points *= 0.50f;
+    //else if (m_Type == ARENA_TYPE_2v2)
+    //    points *= 0.76f;
+    //else if (m_Type == ARENA_TYPE_3v3)
+    //    points *= 0.88f;
 
     return (uint32) points;
 }
