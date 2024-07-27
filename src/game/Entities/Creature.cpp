@@ -511,6 +511,8 @@ bool Creature::UpdateEntry(uint32 Entry, const CreatureData* data /*=nullptr*/, 
     SetSheath(SHEATH_STATE_MELEE);
     SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_DEBUFF_LIMIT, UNIT_BYTE2_CREATURE_DEBUFF_LIMIT);
 
+    sLog.outString("[DEVLOG] Creature::UpdateEntry called");
+
     if (preserveHPAndPower)
     {
         uint32 healthPercent = GetHealthPercent();
