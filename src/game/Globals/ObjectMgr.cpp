@@ -5682,6 +5682,8 @@ void ObjectMgr::LoadInstanceTemplate()
         if (!temp)
             continue;
 
+        sLog.outString("[DEVLOG] ObjectMgr::LoadInstanceTemplate %u", temp->map);
+
         MapEntry const* mapEntry = sMapStore.LookupEntry(temp->map);
         if (!mapEntry)
         {
@@ -9982,6 +9984,7 @@ void ObjectMgr::RemoveGroup(Group* group)
 void ObjectMgr::AddArenaTeam(ArenaTeam* arenaTeam)
 {
     mArenaTeamMap[arenaTeam->GetId()] = arenaTeam;
+    sLog.outString("[DEVLOG] ObjectMgr::AddArenaTeam: id %u, name %s, rating %u", arenaTeam->GetId(), arenaTeam->GetName(), arenaTeam->GetRating());
 }
 
 void ObjectMgr::RemoveArenaTeam(uint32 Id)

@@ -942,6 +942,15 @@ ChatCommand* ChatHandler::getCommandTable()
         { nullptr,         0,                  false,  nullptr,                                        "", nullptr }
     };
 
+    static ChatCommand instanceScalingCommandTable[] =
+    {
+        { "set",            SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingSetCommand,     "", nullptr },
+        { "s",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingSetCommand,     "", nullptr },
+        { "check",          SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingCheckCommand,   "", nullptr },
+        { "c",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingCheckCommand,   "", nullptr },
+        { nullptr,          0,                  false, nullptr,                                           "", nullptr }
+    };
+
     static ChatCommand commandTable[] =
     {
         { "anticheat",      SEC_GAMEMASTER,     true,  nullptr,                                        "", anticheatCommandTable},
@@ -1036,6 +1045,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "setskill",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleSetSkillCommand,            "", nullptr },
         { "whispers",       SEC_MODERATOR,      false, &ChatHandler::HandleWhispersCommand,            "", nullptr },
         { "wr",             SEC_PLAYER,         false, &ChatHandler::HandleWhisperRestrictionCommand,  "", nullptr },
+        { "is",             SEC_PLAYER,         false, nullptr,                                        "", instanceScalingCommandTable },
         { "pinfo",          SEC_GAMEMASTER,     true,  &ChatHandler::HandlePInfoCommand,               "", nullptr },
         { "respawn",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleRespawnCommand,             "", nullptr },
         { "send",           SEC_MODERATOR,      true,  nullptr,                                        "", sendCommandTable },

@@ -175,6 +175,8 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
 
 void Map::Initialize(bool loadInstanceData /*= true*/)
 {
+    sLog.outString("[DEVLOG] Map::Initialize");
+
     m_CreatureGuids.Set(sObjectMgr.GetFirstTemporaryCreatureLowGuid());
     m_GameObjectGuids.Set(sObjectMgr.GetFirstTemporaryGameObjectLowGuid());
 
@@ -1727,6 +1729,8 @@ void Map::RemoveFromOnEventNotified(WorldObject* obj)
 
 void Map::CreateInstanceData(bool load)
 {
+    sLog.outString("[DEVLOG] Map::CreateInstanceData load: %s", load ? "true" : "false");
+
     if (i_data != nullptr)
         return;
 
@@ -1750,6 +1754,8 @@ void Map::CreateInstanceData(bool load)
 
     if (load)
     {
+        sLog.outString("[DEVLOG] Map::CreateInstanceData load true, querying db for data");
+
         std::unique_ptr<QueryResult> queryResult;
 
         if (Instanceable())
@@ -1776,6 +1782,7 @@ void Map::CreateInstanceData(bool load)
     }
     else
     {
+        sLog.outString("[DEVLOG] Map::CreateInstanceData load false, initializing");
         DEBUG_LOG("New instance data, \"%s\" ,initialized!", sScriptDevAIMgr.GetScriptName(i_script_id));
         i_data->Initialize();
     }
