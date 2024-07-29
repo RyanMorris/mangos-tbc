@@ -655,6 +655,9 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
 
     recv_data >> guid >> arenaslot >> asGroup >> isRated;
 
+    sLog.outString("[DEVLOG] WorldSession::HandleBattlemasterJoinArena called: guid %u, arenaSlot %u, asGroup %u, isRated %u",
+                    guid, arenaslot, asGroup, isRated);
+
     // ignore if we already in BG or BG queue
     if (_player->InBattleGround())
         return;
@@ -667,8 +670,6 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
         return;
 
     ArenaType arenatype;
-    uint32 arenaRating = 0;
-
     switch (arenaslot)
     {
         case 0:
@@ -683,6 +684,14 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
         default:
             sLog.outError("Unknown arena slot %u at HandleBattlemasterJoinArena()", arenaslot);
             return;
+    }
+
+    // 5v5 skirmish is 1v1 ranked, so all 5v5 are rated
+    bool is1v1 = false;
+    if (arenatype == ARENA_TYPE_5v5 && isRated == 0)
+    {
+        isRated = 1;
+        is1v1 = true;
     }
 
     // check existence
@@ -754,6 +763,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
     }
 
     uint32 ateamId = 0;
+    uint32 arenaRating = 0;
 
     if (isRated)
     {
@@ -768,8 +778,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
         // get the team rating for queue
         arenaRating = at->GetRating();
 
-        // using 5v5 as 1v1
-        if (arenatype != ARENA_TYPE_5v5 && group != nullptr)
+        if (!is1v1 && group != nullptr)
         {
             // the arena team id must match for everyone in the group
             // get the personal ratings for queue
@@ -832,7 +841,9 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recv_data)
         if (arenatype == ARENA_TYPE_5v5)
         {
             // set arena rated type to show correct minimap arena icon
-            bg->SetRated(isRated != 0);
+            // 5v5 skirmish is 1v1 ranked, so all 5v5 are rated
+            bg->SetRated(true);
+            isRated = 1;
         }
 
         GroupQueueInfo* ginfo = bgQueue.AddGroup(_player, nullptr, bgTypeId, bgBracketId, arenatype, isRated != 0, false, 0, arenaRating, ateamId);

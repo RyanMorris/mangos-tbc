@@ -925,6 +925,9 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BattleGroundBracketI
     uint32 minPlayersPerTeam = bgTemplate->GetMinPlayersPerTeam();
     uint32 maxPlayersPerTeam = bgTemplate->GetMaxPlayersPerTeam();
 
+    sLog.outString("[DEVLOG] BattleGroundQueue::Update: minPlayersPerTeam %u, maxPlayersPerTeam %u",
+        minPlayersPerTeam, maxPlayersPerTeam);
+
     if (sBattleGroundMgr.IsTesting())
         minPlayersPerTeam = 1;
 
@@ -937,24 +940,32 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BattleGroundBracketI
         }
         else
         {
-            // this switch can be much shorter
-            maxPlayersPerTeam = arenaType;
-            minPlayersPerTeam = arenaType;
-            /*switch(arenaType)
+            if (arenaType == ARENA_TYPE_5v5)
             {
-            case ARENA_TYPE_2v2:
-                MaxPlayersPerTeam = 2;
-                MinPlayersPerTeam = 2;
-                break;
-            case ARENA_TYPE_3v3:
-                MaxPlayersPerTeam = 3;
-                MinPlayersPerTeam = 3;
-                break;
-            case ARENA_TYPE_5v5:
-                MaxPlayersPerTeam = 5;
-                MinPlayersPerTeam = 5;
-                break;
-            }*/
+                maxPlayersPerTeam = 1;
+                minPlayersPerTeam = 1;
+            }
+            else
+            {
+                // this switch can be much shorter
+                maxPlayersPerTeam = arenaType;
+                minPlayersPerTeam = arenaType;
+                /*switch(arenaType)
+                {
+                case ARENA_TYPE_2v2:
+                    MaxPlayersPerTeam = 2;
+                    MinPlayersPerTeam = 2;
+                    break;
+                case ARENA_TYPE_3v3:
+                    MaxPlayersPerTeam = 3;
+                    MinPlayersPerTeam = 3;
+                    break;
+                case ARENA_TYPE_5v5:
+                    MaxPlayersPerTeam = 5;
+                    MinPlayersPerTeam = 5;
+                    break;
+                }*/
+            }
         }
     }
 
@@ -1939,7 +1950,7 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         if (playerSkinReflootId)
             m_usedRefloot.insert(playerSkinReflootId);
 
-        // sLog.outDetail("Creating battleground %s, %u-%u", bl->name[sWorld.GetDBClang()], MinLvl, MaxLvl);
+        sLog.outDetail("[DEVLOG] Creating battleground %s, %u-%u", bl->name[sWorld.GetDefaultDbcLocale()], MinLvl, MaxLvl);
         if (!CreateBattleGround(bgTypeId, IsArena, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, bl->name[sWorld.GetDefaultDbcLocale()], bl->mapid[0], allianceStartLoc[0], allianceStartLoc[1], allianceStartLoc[2], allianceStartLoc[3], hordeStartLoc[0], hordeStartLoc[1], hordeStartLoc[2], hordeStartLoc[3], startMaxDist, playerSkinReflootId))
             continue;
 

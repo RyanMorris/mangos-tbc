@@ -29,6 +29,7 @@
 #include "SystemConfig.h"
 #include "revision.h"
 #include "Util/Util.h"
+#include "Maps/ScalingManager.h"
 
 bool ChatHandler::HandleHelpCommand(char* args)
 {
@@ -303,5 +304,84 @@ bool ChatHandler::HandleWhisperRestrictionCommand(char* args)
     m_session->GetPlayer()->SetWhisperRestriction(value);
     PSendSysMessage("Whisper restriction is now %s.", value ? "ON. Only friends, group members, or guildmates may whisper you." : "OFF");
 
+    return true;
+}
+
+bool ChatHandler::HandleInstanceScalingSetCommand(char* args)
+{
+    // validate some args
+    bool success = true;
+    if (!*args)
+    {
+        PSendSysMessage("Instance scaling command did not receive any arguments");
+        return false;
+    }
+
+    // validate all the args required are supplied
+    float tank, heal, dps;
+    if (!ExtractFloat(&args, tank))
+        success = false;
+
+    if (success && !ExtractFloat(&args, heal))
+        success = false;
+
+    if (success && !ExtractFloat(&args, dps))
+        success = false;
+
+    if (!success)
+    {
+        PSendSysMessage("Instance scaling command failed to parse args: %s", args);
+        return false;
+    }
+
+    // validate the player and that they are in an instance
+    Player* player = m_session->GetPlayer();
+    if (player == nullptr)
+    {
+        PSendSysMessage("Instance scaling command failed to get player");
+        return false;
+    }
+    auto instanceId = player->GetInstanceId();
+    if (instanceId <= 0)
+        success = false;
+
+    // set the scaling for the players instance
+    if (success)
+    {
+        ScalingManagerState state {
+            tank,
+            heal,
+            dps
+        };
+        success = sScalingManager.Insert(instanceId, state);
+    }
+
+    if (success)
+    {
+        PSendSysMessage("Instance scaling command success: tank: %s", args);
+        return true;
+    }
+    else
+    {
+        PSendSysMessage("Instance scaling command failed, args: %s", args);
+        return false;
+    }
+}
+
+bool ChatHandler::HandleInstanceScalingCheckCommand(char* /*args*/)
+{
+    Player* player = m_session->GetPlayer();
+    if (player == nullptr)
+    {
+        PSendSysMessage("Instance scaling command failed to get player");
+        return false;
+    }
+    auto instanceId = player->GetInstanceId();
+    if (instanceId <= 0)
+    {
+        PSendSysMessage("Instance scaling command failed, player not in an instance");
+        return false;
+    }
+    PSendSysMessage(sScalingManager.Print(instanceId).c_str());
     return true;
 }

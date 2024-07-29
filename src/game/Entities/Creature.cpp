@@ -318,6 +318,12 @@ void Creature::RemoveCorpse(bool inPlace)
  */
 bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=nullptr*/, GameEventCreatureData const* eventData /*=nullptr*/)
 {
+    
+    if (data != nullptr && data->id == 11519)
+    {
+        sLog.outString("[DEVLOG] Creature::InitEntry: Bazzalan hit");
+    }
+
     // use game event entry if any instead default suggested
     if (eventData && eventData->entry_id)
         Entry = eventData->entry_id;
@@ -511,7 +517,7 @@ bool Creature::UpdateEntry(uint32 Entry, const CreatureData* data /*=nullptr*/, 
     SetSheath(SHEATH_STATE_MELEE);
     SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_DEBUFF_LIMIT, UNIT_BYTE2_CREATURE_DEBUFF_LIMIT);
 
-    sLog.outString("[DEVLOG] Creature::UpdateEntry called");
+    // sLog.outString("[DEVLOG] Creature::UpdateEntry called");
 
     if (preserveHPAndPower)
     {
@@ -1274,6 +1280,12 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
 
     uint32 rank = IsPet() ? 0 : cinfo->Rank;                // TODO :: IsPet probably not needed here
 
+
+    /*if (strcmp(cinfo->Name, "Bazzalan"))
+    {
+        sLog.outString("[DEVLOG] Creature::SelectLevel: Bazzalan hit");
+    }*/
+
     // level
     uint32 level = forcedLevel;
     uint32 const minlevel = cinfo->MinLevel;
@@ -1312,6 +1324,11 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
     float damageMod = _GetDamageMod(rank);
     float damageMulti = cinfo->DamageMultiplier * damageMod;
     bool usedDamageMulti = false;
+
+    /*if (strcmp(cinfo->Name, "Bazzalan"))
+    {
+        sLog.outString("[DEVLOG] Creature::SelectLevel: Bazzalan damageMod %.3f", damageMod);
+    }*/
 
     if (CreatureClassLvlStats const* cCLS = sObjectMgr.GetCreatureClassLvlStats(level, cinfo->UnitClass, cinfo->Expansion))
     {

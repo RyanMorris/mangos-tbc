@@ -823,6 +823,11 @@ class ChatHandler
 
         bool HandlePetLevelLoyaltyCommand(char* args);
 
+        // Custom commands
+        // instance scaling
+        bool HandleInstanceScalingSetCommand(char* args);
+        bool HandleInstanceScalingCheckCommand(char* args);
+
         Player*   getSelectedPlayer() const;
         Unit*     getSelectedUnit(bool self = true) const;
         Creature* getSelectedCreature() const;
