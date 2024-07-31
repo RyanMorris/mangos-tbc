@@ -27,6 +27,7 @@
 #include "Grids/CellImpl.h"
 #include "Globals/ObjectMgr.h"
 #include "Maps/MapWorkers.h"
+#include "Maps/ScalingManager.h"
 #include <future>
 
 #define CLASS_LOCK MaNGOS::ClassLevelLockable<MapManager, std::recursive_mutex>
@@ -307,6 +308,8 @@ uint32 MapManager::GetNumPlayersInInstances()
 ///// in case of battlegrounds it will only return an existing map, those maps are created by bg-system
 Map* MapManager::CreateInstance(uint32 id, Player* player)
 {
+    sLog.outString("[DEVLOG] MapManager::CreateInstance start");
+
     Map* map = nullptr;
     Map* pNewMap = nullptr;
     uint32 NewInstanceId = 0;                               // instanceId of the resulting map
@@ -322,18 +325,39 @@ Map* MapManager::CreateInstance(uint32 id, Player* player)
     }
     else if (DungeonPersistentState* pSave = player->GetBoundInstanceSaveForSelfOrGroup(id))
     {
+        sLog.outString("[DEVLOG] MapManager::CreateInstance persist");
+
         // solo/perm/group
         NewInstanceId = pSave->GetInstanceId();
         map = FindMap(id, NewInstanceId);
+
+        // set custom scaling, can override existing by design
+        ScalingManagerState* scaling = sScalingManager.GetPlayerDefState(player->GetObjectGuid());
+        if (scaling != nullptr)
+        {
+            sScalingManager.InsertInstance(NewInstanceId, *scaling);
+            sLog.outString("[DEVLOG] MapManager::CreateInstance persist, using: %s", sScalingManager.PrintInstance(NewInstanceId).c_str());
+        }
+
         // it is possible that the save exists but the map doesn't
         if (!map)
             pNewMap = CreateDungeonMap(id, NewInstanceId, pSave->GetDifficulty(), pSave);
     }
     else
     {
+        sLog.outString("[DEVLOG] MapManager::CreateInstance new");
+
         // if no instanceId via group members or instance saves is found
         // the instance will be created for the first time
         NewInstanceId = GenerateInstanceId();
+
+        // set custom scaling, can override existing by design
+        ScalingManagerState* scaling = sScalingManager.GetPlayerDefState(player->GetObjectGuid());
+        if (scaling != nullptr)
+        {
+            sScalingManager.InsertInstance(NewInstanceId, *scaling);
+            sLog.outString("[DEVLOG] MapManager::CreateInstance new, using: %s", sScalingManager.PrintInstance(NewInstanceId).c_str());
+        }
 
         Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficulty() : player->GetDifficulty();
         pNewMap = CreateDungeonMap(id, NewInstanceId, diff);

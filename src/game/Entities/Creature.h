@@ -574,7 +574,7 @@ class Creature : public Unit
         bool LoadCreatureAddon(bool reload);
 
         // SelectLevel set creature bases stats for given level or for default levels stored in db
-        void SelectLevel(uint32 forcedLevel = USE_DEFAULT_DATABASE_LEVEL);
+        void SelectLevel(uint32 instanceId, uint32 forcedLevel = USE_DEFAULT_DATABASE_LEVEL);
         void LoadEquipment(uint32 equip_entry, bool force = false);
 
         bool HasStaticDBSpawnData() const;                  // listed in `creature` table and have fixed in DB guid

@@ -341,24 +341,27 @@ bool ChatHandler::HandleInstanceScalingSetCommand(char* args)
         PSendSysMessage("Instance scaling command failed to get player");
         return false;
     }
-    auto instanceId = player->GetInstanceId();
-    if (instanceId <= 0)
+    auto& playerId = player->GetObjectGuid();
+    if (playerId <= 0)
         success = false;
 
     // set the scaling for the players instance
     if (success)
     {
+        tank = std::max(tank, 0.2f);
+        heal = std::max(heal, 0.2f);
+        dps = std::max(dps, 0.2f);
         ScalingManagerState state {
             tank,
             heal,
             dps
         };
-        success = sScalingManager.Insert(instanceId, state);
+        success = sScalingManager.InserPlayerDef(playerId, state);
     }
 
     if (success)
     {
-        PSendSysMessage("Instance scaling command success: tank: %s", args);
+        PSendSysMessage("Instance scaling command success: ", sScalingManager.PrintPlayerDef(playerId).c_str());
         return true;
     }
     else
@@ -379,9 +382,16 @@ bool ChatHandler::HandleInstanceScalingCheckCommand(char* /*args*/)
     auto instanceId = player->GetInstanceId();
     if (instanceId <= 0)
     {
-        PSendSysMessage("Instance scaling command failed, player not in an instance");
-        return false;
+        // not in an instance, get the player state
+        auto& playerId = player->GetObjectGuid();
+        if (playerId <= 0)
+        {
+            PSendSysMessage("Instance scaling command failed, could not find scaling state");
+            return false;
+        }
+        PSendSysMessage(sScalingManager.PrintPlayerDef(playerId).c_str());
+        return true;
     }
-    PSendSysMessage(sScalingManager.Print(instanceId).c_str());
+    PSendSysMessage(sScalingManager.PrintInstance(instanceId).c_str());
     return true;
 }

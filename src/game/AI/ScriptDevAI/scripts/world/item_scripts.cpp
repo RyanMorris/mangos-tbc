@@ -347,7 +347,7 @@ struct SummonGoblinBomb : public SpellScript
     void OnSummon(Spell* spell, Creature* summon) const override
     {
         if (Player* player = dynamic_cast<Player*>(spell->GetCaster()))
-            summon->SelectLevel(uint16(player->GetSkillValue(SKILL_ENGINEERING) / 5));
+            summon->SelectLevel(0, uint16(player->GetSkillValue(SKILL_ENGINEERING) / 5));
         summon->AI()->SetReactState(REACT_AGGRESSIVE);
         summon->CastSpell(summon, SPELL_PET_BOMB_PASSIVE, TRIGGERED_OLD_TRIGGERED);
     }

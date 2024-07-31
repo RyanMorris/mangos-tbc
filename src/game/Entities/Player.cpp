@@ -2069,6 +2069,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     if ((GetMapId() == mapid) && (!m_transport))            // TODO the !m_transport might have unexpected effects when teleporting from transport to other place on same map
     {
+        sLog.outString("[DEVLOG] Player::TeleportTo (GetMapId() == mapid) && (!m_transport) true");
+
         // lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
         // setup delayed teleport flag
@@ -2118,6 +2120,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     }
     else
     {
+        sLog.outString("[DEVLOG] Player::TeleportTo (GetMapId() == mapid) && (!m_transport) false");
+
         // far teleport to another map
         Map* oldmap = IsInWorld() ? GetMap() : nullptr;
         // check if we can enter before stopping combat / removing pet / totems / interrupting spells
