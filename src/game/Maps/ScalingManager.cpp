@@ -31,32 +31,62 @@ INSTANTIATE_SINGLETON_1(ScalingManager);
 
 ScalingManager::ScalingManager()
 {
+    //instanceStates_[0] = {};    // default
 }
 
 ScalingManager::~ScalingManager()
 {
-    /*for (auto& itr : states_)
+    /*for (auto& itr : instanceStates_)
         delete itr.second;*/
 }
 
-bool ScalingManager::Insert(uint32 instanceId)
+bool ScalingManager::InsertInstance(uint32 id, const ScalingManagerState& state)
 {
-    states_[instanceId] = {};
+    instanceStates_[id] = state;
     return true;
 }
 
-bool ScalingManager::Insert(uint32 instanceId, const ScalingManagerState& state)
+bool ScalingManager::InserPlayerDef(uint32 id, const ScalingManagerState& state)
 {
-    states_[instanceId] = state;
+    playerDefinedStates_[id] = state;
     return true;
 }
 
-std::string ScalingManager::Print(uint32 instanceId)
+std::string ScalingManager::PrintInstance(uint32 id)
 {
-    auto itr = states_.find(instanceId);
-    if (itr == states_.end())
+    auto itr = instanceStates_.find(id);
+    if (itr == instanceStates_.end())
         return "N/A";
-    return "tank: " + std::to_string(itr->second.tankFactor_)
+
+    return "::INSTANCE STATE:: instanceId: " + std::to_string(id)
+        + " tank: " + std::to_string(itr->second.tankFactor_)
         + " heal: " + std::to_string(itr->second.healFactor_)
-        + " dps: " + std::to_string(itr->second.dpsFactor_);
+        + " dps: " + std::to_string(itr->second.dpsFactor_)
+        + " | SCALING -> health%: " + std::to_string(itr->second.dpsFactor_ * 100)
+        + " damage%: " + std::to_string(itr->second.tankFactor_ * itr->second.healFactor_ * 100);
+}
+
+std::string ScalingManager::PrintPlayerDef(uint32 id)
+{
+    auto itr = playerDefinedStates_.find(id);
+    if (itr == playerDefinedStates_.end())
+        return "N/A";
+
+    return "::PLAYER STATE:: tank: " + std::to_string(itr->second.tankFactor_)
+        + " heal: " + std::to_string(itr->second.healFactor_)
+        + " dps: " + std::to_string(itr->second.dpsFactor_)
+        + " | SCALING -> health%: " + std::to_string(itr->second.dpsFactor_ * 100)
+        + " damage%: " + std::to_string(itr->second.tankFactor_ * itr->second.healFactor_ * 100);
+}
+
+ScalingManagerState* ScalingManager::GetInstanceState(uint32 id)
+{
+    auto itr = instanceStates_.find(id);
+    return itr == instanceStates_.end() ? nullptr : &(itr->second);
+}
+
+ScalingManagerState* ScalingManager::GetPlayerDefState(uint32 id)
+{
+    auto itr = playerDefinedStates_.find(id);
+    return itr == playerDefinedStates_.end() ? nullptr : &(itr->second);
 }

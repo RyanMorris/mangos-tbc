@@ -26,6 +26,7 @@ class Player;
 class Group;
 class Map;
 
+
 struct ScalingManagerState
 {
     float tankFactor_{ 1.0f };  // how many tanks out of max, 0.0 - 1.0, ie 2/2 or 1/2
@@ -34,22 +35,27 @@ struct ScalingManagerState
 };
 
 
-
 class ScalingManager
 {
 public:
     ScalingManager();
     ~ScalingManager();
 
-    bool Insert(uint32 instanceId);
-    bool Insert(uint32 instanceId, const ScalingManagerState& state);
+    bool InsertInstance(uint32 id, const ScalingManagerState& state);
+    bool InserPlayerDef(uint32 id, const ScalingManagerState& state);
 
-    std::string Print(uint32 instanceId);
+    std::string PrintInstance(uint32 id);
+    std::string PrintPlayerDef(uint32 id);
+
+    typedef std::unordered_map<uint32, ScalingManagerState> ScalingStateMap;
+
+    ScalingStateMap& GetInstanceStates() { return instanceStates_; }
+    ScalingManagerState* GetInstanceState(uint32 id);
+    ScalingManagerState* GetPlayerDefState(uint32 id);
 
 private:
-    typedef std::unordered_map < uint32 /*InstanceId*/, ScalingManagerState > StatesPerInstance;
-
-    StatesPerInstance states_;
+    ScalingStateMap instanceStates_;            // state of each map instance      
+    ScalingStateMap playerDefinedStates_;       // each player can setup values, then the instance uses their settings to create the map
 };
 
 #define sScalingManager MaNGOS::Singleton<ScalingManager>::Instance()

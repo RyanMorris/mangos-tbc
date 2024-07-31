@@ -139,7 +139,10 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // relocate the player to the teleport destination
     if (!map)
+    {
+        sLog.outString("[DEVLOG] WorldSession::HandleMoveWorldportAckOpcode: creating map");
         map = sMapMgr.CreateMap(loc.mapid, GetPlayer());
+    }
 
     // if dead player is entering an instance of same id but corpse is not found, likely means entering different instance id
     if (GetPlayer()->IsDelayedResurrect() && !map->GetCorpse(GetPlayer()->GetObjectGuid()) && at)

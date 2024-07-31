@@ -1390,7 +1390,8 @@ void Pet::InitStatsForLevel(uint32 petlevel)
         }
         case GUARDIAN_PET:
         {
-            SelectLevel(petlevel);  // guardians reuse CLS function SelectLevel, so we stop here
+            uint32 instanceId = owner != nullptr ? owner->GetInstanceId() : 0;
+            SelectLevel(instanceId, petlevel);  // guardians reuse CLS function SelectLevel, so we stop here
             InitPetScalingAuras();
             return;
         }

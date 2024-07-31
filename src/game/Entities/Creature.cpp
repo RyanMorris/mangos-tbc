@@ -47,10 +47,10 @@
 #include "Movement/MoveSplineInit.h"
 #include "Entities/CreatureLinkingMgr.h"
 #include "Maps/SpawnManager.h"
+#include "Maps/ScalingManager.h"
 
 // apply implementation of the singletons
 #include "Policies/Singleton.h"
-
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -331,7 +331,7 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=nullptr*/, Ga
     CreatureInfo const* normalInfo = ObjectMgr::GetCreatureTemplate(Entry);
     if (!normalInfo)
     {
-        sLog.outErrorDb("Creature::UpdateEntry creature entry %u does not exist.", Entry);
+        sLog.outErrorDb("Creature::InitEntry creature entry %u does not exist.", Entry);
         return false;
     }
 
@@ -346,7 +346,7 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=nullptr*/, Ga
             cinfo = ObjectMgr::GetCreatureTemplate(normalInfo->HeroicEntry);
             if (!cinfo)
             {
-                sLog.outErrorDb("Creature::UpdateEntry creature heroic entry %u does not exist.", normalInfo->HeroicEntry);
+                sLog.outErrorDb("Creature::InitEntry creature heroic entry %u does not exist.", normalInfo->HeroicEntry);
                 return false;
             }
         }
@@ -518,16 +518,29 @@ bool Creature::UpdateEntry(uint32 Entry, const CreatureData* data /*=nullptr*/, 
     SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_DEBUFF_LIMIT, UNIT_BYTE2_CREATURE_DEBUFF_LIMIT);
 
     // sLog.outString("[DEVLOG] Creature::UpdateEntry called");
+    Map* map = GetMap();
+    uint32 instanceId = map != nullptr && map->Instanceable() ? map->GetInstanceId() : 0;
+
+    /*if (map == nullptr)
+    {
+        sLog.outString("[DEVLOG] Creature::UpdateEntry: map null, attempting update");
+        map = GetMap();
+    }
+
+    if (map != nullptr && !map->Instanceable())
+        sLog.outString("[DEVLOG] Creature::UpdateEntry: map not instance");
+
+    sLog.outString("[DEVLOG] Creature::UpdateEntry: instance %d", instanceId);*/
 
     if (preserveHPAndPower)
     {
         uint32 healthPercent = GetHealthPercent();
-        SelectLevel();
+        SelectLevel(instanceId);
         SetHealthPercent(healthPercent);
     }
     else
     {
-        SelectLevel();
+        SelectLevel(instanceId);
         if (data)
         {
             uint32 curhealth = data->spawnTemplate->curHealth > 0 ? data->spawnTemplate->curHealth : GetMaxHealth();
@@ -909,7 +922,9 @@ bool Creature::AIM_Initialize()
     return true;
 }
 
-bool Creature::Create(uint32 dbGuid, uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* cinfo, const CreatureData* data /*= nullptr*/, GameEventCreatureData const* eventData /*= nullptr*/)
+bool Creature::Create(uint32 dbGuid, uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* cinfo,
+                      const CreatureData* data /*= nullptr*/,
+                      GameEventCreatureData const* eventData /*= nullptr*/)
 {
     SetMap(cPos.GetMap());
     SetRespawnCoord(cPos);
@@ -931,8 +946,11 @@ bool Creature::Create(uint32 dbGuid, uint32 guidlow, CreatureCreatePos& cPos, Cr
     // Notify the map's instance data.
     // Only works if you create the object in it, not if it is moves to that map.
     // Normally non-players do not teleport to other maps.
-    if (InstanceData * iData = GetMap()->GetInstanceData())
+    if (InstanceData* iData = GetMap()->GetInstanceData())
+    {
+        //sLog.outString("[DEVLOG] Creature::Create instace data");
         iData->OnCreatureCreate(this);
+    }
 
     // Add to CreatureLinkingHolder if needed
     if (sCreatureLinkingMgr.GetLinkedTriggerInformation(this))
@@ -1272,7 +1290,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask)
     WorldDatabase.CommitTransaction();
 }
 
-void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
+void Creature::SelectLevel(uint32 instanceId, uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
 {
     CreatureInfo const* cinfo = GetCreatureInfo();
     if (!cinfo)
@@ -1322,6 +1340,23 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
     float spirit = 0.f;
 
     float damageMod = _GetDamageMod(rank);
+
+    // custom scaling
+    ScalingManagerState* state = nullptr;
+    if (instanceId > 0)
+    {
+        state = sScalingManager.GetInstanceState(instanceId);
+        if (state != nullptr)
+        {
+            damageMod *= state->tankFactor_ * state->healFactor_;
+            sLog.outString("[DEVLOG] Creature::SelectLevel: instance %d, damageMod %.3f", instanceId, damageMod);
+        }
+        else
+        {
+            sLog.outString("[DEVLOG] Creature::SelectLevel: STATE NULL instance %d", instanceId);
+        }
+    }
+
     float damageMulti = cinfo->DamageMultiplier * damageMod;
     bool usedDamageMulti = false;
 
@@ -1431,7 +1466,21 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
         }
     }
 
-    health *= _GetHealthMod(rank); // Apply custom config settting
+    float healthMod = _GetHealthMod(rank); // Apply custom config settting
+    if (instanceId > 0)
+    {
+        state = sScalingManager.GetInstanceState(instanceId);
+        if (state != nullptr)
+        {
+            healthMod *= state->dpsFactor_;
+            sLog.outString("[DEVLOG] Creature::SelectLevel: instance %d, healthMod %.3f", instanceId, healthMod);
+        } else
+        {
+            sLog.outString("[DEVLOG] Creature::SelectLevel: STATE NULL instance %d", instanceId);
+        }
+    }
+
+    health *= healthMod;
     if (health < 1)
         health = 1;
 
@@ -1600,8 +1649,12 @@ void Creature::ClearCreatureGroup()
     m_creatureGroup = nullptr;
 }
 
-bool Creature::CreateFromProto(uint32 dbGuid, uint32 guidlow, CreatureInfo const* cinfo, const CreatureData* data /*=nullptr*/, GameEventCreatureData const* eventData /*=nullptr*/)
+bool Creature::CreateFromProto(uint32 dbGuid, uint32 guidlow, CreatureInfo const* cinfo,
+                               const CreatureData* data /*=nullptr*/,
+                               GameEventCreatureData const* eventData /*=nullptr*/)
 {
+    // sLog.outString("[DEVLOG] Creature::CreateFromProto");
+
     m_originalEntry = cinfo->Entry;
 
     uint32 newEntry = cinfo->Entry;

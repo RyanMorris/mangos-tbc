@@ -2183,7 +2183,11 @@ Creature* WorldObject::SummonCreature(TempSpawnSettings settings, Map* map)
         creature->SetUInt32Value(UNIT_CREATED_BY_SPELL, settings.spellId);
 
     if (settings.level)
-        creature->SelectLevel(settings.level);
+    {
+        uint32 instanceId = map != nullptr && map->Instanceable() ? map->GetInstanceId() : 0;
+        creature->SelectLevel(instanceId, settings.level);
+        sLog.outString("[DEVLOG] Object::SummonCreature: instance %d", instanceId);
+    }
 
     if (settings.ownerGuid)
         creature->SetOwnerGuid(settings.ownerGuid);
