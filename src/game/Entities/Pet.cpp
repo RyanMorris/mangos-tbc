@@ -26,6 +26,7 @@
 #include "Spells/SpellAuras.h"
 #include "Entities/Unit.h"
 #include "Entities/Transports.h"
+#include "Maps/ScalingManager.h"
 
 // numbers represent minutes * 100 while happy (you get 100 loyalty points per min while happy)
 uint32 const LevelUpLoyalty[6] =
@@ -1231,6 +1232,8 @@ void Pet::InitStatsForLevel(uint32 petlevel)
     CreatureInfo const* cInfo = GetCreatureInfo();
     MANGOS_ASSERT(cInfo);
 
+    uint32 instanceId = owner != nullptr ? owner->GetInstanceId() : 0;
+
     SetLevel(petlevel);
 
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0);
@@ -1352,7 +1355,8 @@ void Pet::InitStatsForLevel(uint32 petlevel)
                     float minDmg = (cCLS->BaseDamage * cInfo->DamageVariance + (cCLS->BaseMeleeAttackPower / 14) * (cInfo->MeleeBaseAttackTime / 1000.f)) * cInfo->DamageMultiplier;
 
                     // Apply custom damage setting (from config)
-                    minDmg *= _GetDamageMod(cInfo->Rank);
+                    if (!IsPlayerControlled())
+                        minDmg *= _GetDamageMod(cInfo->Rank, instanceId);
 
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(minDmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(minDmg * 1.5));
@@ -1390,7 +1394,6 @@ void Pet::InitStatsForLevel(uint32 petlevel)
         }
         case GUARDIAN_PET:
         {
-            uint32 instanceId = owner != nullptr ? owner->GetInstanceId() : 0;
             SelectLevel(instanceId, petlevel);  // guardians reuse CLS function SelectLevel, so we stop here
             InitPetScalingAuras();
             return;
@@ -1411,7 +1414,8 @@ void Pet::InitStatsForLevel(uint32 petlevel)
     }
 
     // Apply custom health setting (from config)
-    health *= _GetHealthMod(cInfo->Rank);
+    if (!IsPlayerControlled())
+        health *= _GetHealthMod(cInfo->Rank, instanceId);
 
     // A pet cannot not have health
     if (health < 1)

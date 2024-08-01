@@ -331,13 +331,18 @@ Map* MapManager::CreateInstance(uint32 id, Player* player)
         NewInstanceId = pSave->GetInstanceId();
         map = FindMap(id, NewInstanceId);
 
-        // set custom scaling, can override existing by design
-        ScalingManagerState* scaling = sScalingManager.GetPlayerDefState(player->GetObjectGuid());
-        if (scaling != nullptr)
+        // set custom scaling, prevent override, unless there is no set scaling, then set from player
+        ScalingManagerState* scaling = sScalingManager.GetInstanceState(NewInstanceId);
+        if (scaling == nullptr)
         {
-            sScalingManager.InsertInstance(NewInstanceId, *scaling);
-            sLog.outString("[DEVLOG] MapManager::CreateInstance persist, using: %s", sScalingManager.PrintInstance(NewInstanceId).c_str());
+            scaling = sScalingManager.GetPlayerDefState(player->GetObjectGuid());
+            if (scaling != nullptr)
+            {
+                sScalingManager.InsertInstance(NewInstanceId, *scaling);
+                sLog.outString("[DEVLOG] MapManager::CreateInstance persist, for instanceId: %d, playerId: %d", NewInstanceId, player->GetObjectGuid());
+            }
         }
+        
 
         // it is possible that the save exists but the map doesn't
         if (!map)
@@ -351,12 +356,12 @@ Map* MapManager::CreateInstance(uint32 id, Player* player)
         // the instance will be created for the first time
         NewInstanceId = GenerateInstanceId();
 
-        // set custom scaling, can override existing by design
+        // set custom scaling
         ScalingManagerState* scaling = sScalingManager.GetPlayerDefState(player->GetObjectGuid());
         if (scaling != nullptr)
         {
             sScalingManager.InsertInstance(NewInstanceId, *scaling);
-            sLog.outString("[DEVLOG] MapManager::CreateInstance new, using: %s", sScalingManager.PrintInstance(NewInstanceId).c_str());
+            sLog.outString("[DEVLOG] MapManager::CreateInstance new, for instanceId: %d, playerId: %d", NewInstanceId, player->GetObjectGuid());
         }
 
         Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficulty() : player->GetDifficulty();
