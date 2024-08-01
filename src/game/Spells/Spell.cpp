@@ -3411,6 +3411,12 @@ SpellCastResult Spell::cast(bool skipCheck)
     if (!procTarget)
         procTarget = m_caster;
 
+    if (m_spellInfo->Id == 33538)
+    {
+        auto isDelayed = IsDelayedSpell();
+        sLog.outString("[DEVLOG] Spell::cast: IsDelayedSpell %s, m_trueCaster: %s", isDelayed ? "yes" : "no", m_trueCaster->GetName());
+    }
+
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (IsDelayedSpell())
     {
@@ -3615,6 +3621,12 @@ void Spell::_handle_immediate_phase()
 
 void Spell::_handle_finish_phase()
 {
+    if (m_spellInfo->Id == 33538)
+    {
+        auto isDelayed = IsDelayedSpell();
+        sLog.outString("[DEVLOG] Spell::_handle_finish_phase");
+    }
+
     // spell log
     if (m_needSpellLog)
         m_spellLog.SendToSet();
@@ -3869,6 +3881,12 @@ void Spell::update(uint32 difftime)
 
 void Spell::finish(bool ok)
 {
+    if (m_spellInfo->Id == 33538)
+    {
+        auto isDelayed = IsDelayedSpell();
+        sLog.outString("[DEVLOG] Spell::finish");
+    }
+
     if (!m_trueCaster)
         return;
 
@@ -4824,6 +4842,12 @@ void Spell::AddPrecastSpell(uint32 spellId)
 
 void Spell::CastTriggerSpells()
 {
+    if (m_spellInfo->Id == 33538)
+    {
+        auto isDelayed = IsDelayedSpell();
+        sLog.outString("[DEVLOG] Spell::finish");
+    }
+
     for (SpellInfoList::const_iterator si = m_TriggerSpells.begin(); si != m_TriggerSpells.end(); ++si)
     {
         Spell* spell = new Spell(m_trueCaster, (*si), TRIGGERED_OLD_TRIGGERED, m_originalCasterGUID);
