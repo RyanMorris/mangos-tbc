@@ -393,10 +393,13 @@ bool ChatHandler::HandleInstanceScalingCheckCommand(char* /*args*/)
         }
         auto state = sScalingManager.GetPlayerDefState(playerId);
         if (state != nullptr)
-            PSendSysMessage("::PLAYER STATE:: tank: %.3f  heal: %.3f  dps: %.3f | SCALING -> health%%: %d  damage%%: %d",
-                            state->tankFactor_, state->healFactor_, state->dpsFactor_,
-                            state->dpsFactor_ * 100.0f,
-                            state->tankFactor_ * state->healFactor_ * 100.0f);
+        {
+            auto healthP = state->dpsFactor_ * 100.0f;
+            auto damageP = state->tankFactor_ * state->healFactor_ * 100.0f;
+            PSendSysMessage("::PLAYER STATE:: tank: %.3f  heal: %.3f  dps: %.3f | SCALING -> health: %.2f%%  damage: %.2f%%",
+                state->tankFactor_, state->healFactor_, state->dpsFactor_,
+                healthP, damageP);
+        }
         else
             PSendSysMessage("N/A");
 
@@ -405,11 +408,14 @@ bool ChatHandler::HandleInstanceScalingCheckCommand(char* /*args*/)
     // in an instance
     auto state = sScalingManager.GetInstanceState(instanceId);
     if (state != nullptr)
-        PSendSysMessage("::INSTANCE STATE:: instanceId: %d, tank: %.3f  heal: %.3f  dps: %.3f | SCALING -> health%%: %d  damage%%: %d",
-                        instanceId,
-                        state->tankFactor_, state->healFactor_, state->dpsFactor_,
-                        state->dpsFactor_ * 100.0f,
-                        state->tankFactor_ * state->healFactor_ * 100.0f);
+    {
+        auto healthP = state->dpsFactor_ * 100.0f;
+        auto damageP = state->tankFactor_ * state->healFactor_ * 100.0f;
+        PSendSysMessage("::INSTANCE STATE:: instanceId: %d, tank: %.3f  heal: %.3f  dps: %.3f | SCALING -> health: %.2f%%  damage: %.2f%%",
+            instanceId,
+            state->tankFactor_, state->healFactor_, state->dpsFactor_,
+            healthP, damageP);
+    }
     else
         PSendSysMessage("N/A");
 

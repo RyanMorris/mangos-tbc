@@ -1298,12 +1298,6 @@ void Creature::SelectLevel(uint32 instanceId, uint32 forcedLevel /*= USE_DEFAULT
 
     uint32 rank = IsPet() ? 0 : cinfo->Rank;                // TODO :: IsPet probably not needed here
 
-
-    /*if (strcmp(cinfo->Name, "Bazzalan"))
-    {
-        sLog.outString("[DEVLOG] Creature::SelectLevel: Bazzalan hit");
-    }*/
-
     // level
     uint32 level = forcedLevel;
     uint32 const minlevel = cinfo->MinLevel;
@@ -1340,6 +1334,8 @@ void Creature::SelectLevel(uint32 instanceId, uint32 forcedLevel /*= USE_DEFAULT
     float spirit = 0.f;
 
     float damageMod = _GetDamageMod(rank, instanceId);
+    //if (instanceId > 0)
+    //    sLog.outString("[DEVLOG] Creature::SelectLevel instanceId %d, damageMod %.4f", instanceId, damageMod);
     float damageMulti = cinfo->DamageMultiplier * damageMod;
     bool usedDamageMulti = false;
 

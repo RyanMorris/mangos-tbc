@@ -1232,7 +1232,9 @@ void Pet::InitStatsForLevel(uint32 petlevel)
     CreatureInfo const* cInfo = GetCreatureInfo();
     MANGOS_ASSERT(cInfo);
 
-    uint32 instanceId = owner != nullptr ? owner->GetInstanceId() : 0;
+    Map* map = GetMap();
+    uint32 instanceId = map != nullptr ? map->GetInstanceId() : 0;
+    sLog.outString("[DEVLOG] Pet::InitStatsForLevel map null %s, owner null %s", map == nullptr ? "yes" : "no", owner == nullptr ? "yes" : "no");
 
     SetLevel(petlevel);
 
@@ -1336,6 +1338,8 @@ void Pet::InitStatsForLevel(uint32 petlevel)
 
         case SUMMON_PET:
         {
+            sLog.outString("[DEVLOG] Pet::InitStatsForLevel SUMMON_PET");
+
             SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
 
@@ -1356,7 +1360,10 @@ void Pet::InitStatsForLevel(uint32 petlevel)
 
                     // Apply custom damage setting (from config)
                     if (!IsPlayerControlled())
+                    {
                         minDmg *= _GetDamageMod(cInfo->Rank, instanceId);
+                        sLog.outString("[DEVLOG] Pet::InitStatsForLevel: scaling minDmg %.3f", minDmg);
+                    }
 
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(minDmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(minDmg * 1.5));
@@ -1394,6 +1401,8 @@ void Pet::InitStatsForLevel(uint32 petlevel)
         }
         case GUARDIAN_PET:
         {
+            sLog.outString("[DEVLOG] Pet::InitStatsForLevel GUARDIAN_PET instanceId %d", instanceId);
+
             SelectLevel(instanceId, petlevel);  // guardians reuse CLS function SelectLevel, so we stop here
             InitPetScalingAuras();
             return;
@@ -1415,7 +1424,10 @@ void Pet::InitStatsForLevel(uint32 petlevel)
 
     // Apply custom health setting (from config)
     if (!IsPlayerControlled())
+    {
         health *= _GetHealthMod(cInfo->Rank, instanceId);
+        sLog.outString("[DEVLOG] Pet::InitStatsForLevel: scaling health %.3f", health);
+    }
 
     // A pet cannot not have health
     if (health < 1)
