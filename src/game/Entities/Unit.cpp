@@ -7383,16 +7383,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellSchoolMask schoolMask, Spel
     if (GetTypeId() == TYPEID_UNIT && !((Creature*)this)->IsPet())
     {
         Map* map = GetMap();
-        if (map != nullptr && map->GetInstanceId() > 0)
-        {
-            ScalingManagerState* state = sScalingManager.GetInstanceState(map->GetInstanceId());
-            if (state != nullptr)
-            {
-                DoneTotalMod *= state->tankFactor_ * state->healFactor_;
-            }
-        }
-
-        DoneTotalMod *= Creature::_GetSpellDamageMod(((Creature*)this)->GetCreatureInfo()->Rank);
+        uint32 instanceId = map != nullptr ? map->GetInstanceId() : 0;
+        DoneTotalMod *= Creature::_GetSpellDamageMod(((Creature*)this)->GetCreatureInfo()->Rank, instanceId);
     }
 
     Item* const weapon = GetTypeId() == TYPEID_PLAYER ? ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND) : nullptr;

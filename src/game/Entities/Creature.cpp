@@ -1339,31 +1339,9 @@ void Creature::SelectLevel(uint32 instanceId, uint32 forcedLevel /*= USE_DEFAULT
     float intellect = 0.f;
     float spirit = 0.f;
 
-    float damageMod = _GetDamageMod(rank);
-
-    // custom scaling
-    ScalingManagerState* state = nullptr;
-    if (instanceId > 0)
-    {
-        state = sScalingManager.GetInstanceState(instanceId);
-        if (state != nullptr)
-        {
-            damageMod *= state->tankFactor_ * state->healFactor_;
-            sLog.outString("[DEVLOG] Creature::SelectLevel: instance %d, damageMod %.3f", instanceId, damageMod);
-        }
-        else
-        {
-            sLog.outString("[DEVLOG] Creature::SelectLevel: STATE NULL instance %d", instanceId);
-        }
-    }
-
+    float damageMod = _GetDamageMod(rank, instanceId);
     float damageMulti = cinfo->DamageMultiplier * damageMod;
     bool usedDamageMulti = false;
-
-    /*if (strcmp(cinfo->Name, "Bazzalan"))
-    {
-        sLog.outString("[DEVLOG] Creature::SelectLevel: Bazzalan damageMod %.3f", damageMod);
-    }*/
 
     if (CreatureClassLvlStats const* cCLS = sObjectMgr.GetCreatureClassLvlStats(level, cinfo->UnitClass, cinfo->Expansion))
     {
@@ -1466,20 +1444,7 @@ void Creature::SelectLevel(uint32 instanceId, uint32 forcedLevel /*= USE_DEFAULT
         }
     }
 
-    float healthMod = _GetHealthMod(rank); // Apply custom config settting
-    if (instanceId > 0)
-    {
-        state = sScalingManager.GetInstanceState(instanceId);
-        if (state != nullptr)
-        {
-            healthMod *= state->dpsFactor_;
-            sLog.outString("[DEVLOG] Creature::SelectLevel: instance %d, healthMod %.3f", instanceId, healthMod);
-        } else
-        {
-            sLog.outString("[DEVLOG] Creature::SelectLevel: STATE NULL instance %d", instanceId);
-        }
-    }
-
+    float healthMod = _GetHealthMod(rank, instanceId); // Apply custom config settting
     health *= healthMod;
     if (health < 1)
         health = 1;
@@ -1554,61 +1519,121 @@ void Creature::SelectLevel(uint32 instanceId, uint32 forcedLevel /*= USE_DEFAULT
         SetPower(Powers(i), GetMaxPower(Powers(i)));
 }
 
-float Creature::_GetHealthMod(int32 Rank)
+float Creature::_GetHealthMod(int32 Rank, uint32 instanceId)
 {
-    switch (Rank)                                           // define rates for each elite rank
+    float healthMod = 1.0f;
+    switch (Rank)                           // define rates for each elite rank
     {
         case CREATURE_ELITE_NORMAL:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_NORMAL_HP);
+            healthMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_NORMAL_HP);
+            break;
         case CREATURE_ELITE_ELITE:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_HP);
+            healthMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_HP);
+            break;
         case CREATURE_ELITE_RAREELITE:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RAREELITE_HP);
+            healthMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RAREELITE_HP);
+            break;
         case CREATURE_ELITE_WORLDBOSS:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_WORLDBOSS_HP);
+            healthMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_WORLDBOSS_HP);
+            break;
         case CREATURE_ELITE_RARE:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RARE_HP);
+            healthMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RARE_HP);
+            break;
         default:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_HP);
+            healthMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_HP);
     }
+    if (instanceId > 0)
+    {
+        ScalingManagerState* state = sScalingManager.GetInstanceState(instanceId);
+        if (state != nullptr)
+        {
+            healthMod *= state->dpsFactor_;
+            // sLog.outString("[DEVLOG] Creature::_GetHealthMod: instance %d, healthMod %.3f", instanceId, healthMod);
+        }
+        else
+        {
+            sLog.outString("[DEVLOG] Creature::_GetHealthMod: STATE NULL instance %d", instanceId);
+        }
+    }
+    return healthMod;
 }
 
-float Creature::_GetDamageMod(int32 Rank)
+float Creature::_GetDamageMod(int32 Rank, uint32 instanceId)
 {
-    switch (Rank)                                           // define rates for each elite rank
+    float damageMod = 1.0f;
+    switch (Rank)                               // define rates for each elite rank
     {
         case CREATURE_ELITE_NORMAL:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_NORMAL_DAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_NORMAL_DAMAGE);
+            break;
         case CREATURE_ELITE_ELITE:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_DAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_DAMAGE);
+            break;
         case CREATURE_ELITE_RAREELITE:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RAREELITE_DAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RAREELITE_DAMAGE);
+            break;
         case CREATURE_ELITE_WORLDBOSS:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_WORLDBOSS_DAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_WORLDBOSS_DAMAGE);
+            break;
         case CREATURE_ELITE_RARE:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RARE_DAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RARE_DAMAGE);
+            break;
         default:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_DAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_DAMAGE);
     }
+    if (instanceId > 0)
+    {
+        ScalingManagerState* state = sScalingManager.GetInstanceState(instanceId);
+        if (state != nullptr)
+        {
+            damageMod *= state->tankFactor_ * state->healFactor_;
+            // sLog.outString("[DEVLOG] Creature::_GetDamageMod: instance %d, damageMod %.3f", instanceId, damageMod);
+        }
+        else
+        {
+            sLog.outString("[DEVLOG] Creature::_GetDamageMod: STATE NULL instance %d", instanceId);
+        }
+    }
+    return damageMod;
 }
 
-float Creature::_GetSpellDamageMod(int32 Rank)
+float Creature::_GetSpellDamageMod(int32 Rank, uint32 instanceId)
 {
-    switch (Rank)                                           // define rates for each elite rank
+    float damageMod = 1.0f;
+    switch (Rank)                           // define rates for each elite rank
     {
         case CREATURE_ELITE_NORMAL:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_NORMAL_SPELLDAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_NORMAL_SPELLDAMAGE);
+            break;
         case CREATURE_ELITE_ELITE:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE);
+            break;
         case CREATURE_ELITE_RAREELITE:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RAREELITE_SPELLDAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RAREELITE_SPELLDAMAGE);
+            break;
         case CREATURE_ELITE_WORLDBOSS:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_WORLDBOSS_SPELLDAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_WORLDBOSS_SPELLDAMAGE);
+            break;
         case CREATURE_ELITE_RARE:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RARE_SPELLDAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_RARE_SPELLDAMAGE);
+            break;
         default:
-            return sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE);
+            damageMod = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE);
     }
+    if (instanceId > 0)
+    {
+        ScalingManagerState* state = sScalingManager.GetInstanceState(instanceId);
+        if (state != nullptr)
+        {
+            damageMod *= state->tankFactor_ * state->healFactor_;
+            // sLog.outString("[DEVLOG] Creature::_GetSpellDamageMod: instance %d, damageMod %.3f", instanceId, damageMod);
+        }
+        else
+        {
+            sLog.outString("[DEVLOG] Creature::_GetSpellDamageMod: STATE NULL instance %d", instanceId);
+        }
+    }
+    return damageMod;
 }
 
 std::vector<uint32> Creature::GetCharmSpells() const

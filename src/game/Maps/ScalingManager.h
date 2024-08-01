@@ -44,9 +44,6 @@ public:
     bool InsertInstance(uint32 id, const ScalingManagerState& state);
     bool InserPlayerDef(uint32 id, const ScalingManagerState& state);
 
-    std::string PrintInstance(uint32 id);
-    std::string PrintPlayerDef(uint32 id);
-
     typedef std::unordered_map<uint32, ScalingManagerState> ScalingStateMap;
 
     ScalingStateMap& GetInstanceStates() { return instanceStates_; }

@@ -361,7 +361,9 @@ bool ChatHandler::HandleInstanceScalingSetCommand(char* args)
 
     if (success)
     {
-        PSendSysMessage("Instance scaling command success: ", sScalingManager.PrintPlayerDef(playerId).c_str());
+        auto state = sScalingManager.GetPlayerDefState(playerId);
+        if (state != nullptr)
+            PSendSysMessage("Instance scaling command success: tank: %.3f  heal: %.3f  dps: %.3f", state->tankFactor_, state->healFactor_, state->dpsFactor_);
         return true;
     }
     else
@@ -389,9 +391,27 @@ bool ChatHandler::HandleInstanceScalingCheckCommand(char* /*args*/)
             PSendSysMessage("Instance scaling command failed, could not find scaling state");
             return false;
         }
-        PSendSysMessage(sScalingManager.PrintPlayerDef(playerId).c_str());
+        auto state = sScalingManager.GetPlayerDefState(playerId);
+        if (state != nullptr)
+            PSendSysMessage("::PLAYER STATE:: tank: %.3f  heal: %.3f  dps: %.3f | SCALING -> health%%: %d  damage%%: %d",
+                            state->tankFactor_, state->healFactor_, state->dpsFactor_,
+                            state->dpsFactor_ * 100.0f,
+                            state->tankFactor_ * state->healFactor_ * 100.0f);
+        else
+            PSendSysMessage("N/A");
+
         return true;
     }
-    PSendSysMessage(sScalingManager.PrintInstance(instanceId).c_str());
+    // in an instance
+    auto state = sScalingManager.GetInstanceState(instanceId);
+    if (state != nullptr)
+        PSendSysMessage("::INSTANCE STATE:: instanceId: %d, tank: %.3f  heal: %.3f  dps: %.3f | SCALING -> health%%: %d  damage%%: %d",
+                        instanceId,
+                        state->tankFactor_, state->healFactor_, state->dpsFactor_,
+                        state->dpsFactor_ * 100.0f,
+                        state->tankFactor_ * state->healFactor_ * 100.0f);
+    else
+        PSendSysMessage("N/A");
+
     return true;
 }
