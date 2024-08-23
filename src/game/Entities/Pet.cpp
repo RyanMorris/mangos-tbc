@@ -1362,7 +1362,7 @@ void Pet::InitStatsForLevel(uint32 petlevel)
                     if (!IsPlayerControlled())
                     {
                         minDmg *= _GetDamageMod(cInfo->Rank, instanceId);
-                        sLog.outString("[DEVLOG] Pet::InitStatsForLevel: scaling minDmg %.3f", minDmg);
+                        //sLog.outString("[DEVLOG] Pet::InitStatsForLevel: scaling minDmg %.3f", minDmg);
                     }
 
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(minDmg));

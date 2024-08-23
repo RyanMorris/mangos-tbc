@@ -827,6 +827,10 @@ class ChatHandler
         // instance scaling
         bool HandleInstanceScalingSetCommand(char* args);
         bool HandleInstanceScalingCheckCommand(char* args);
+        bool HandleInstanceScalingOldSetCommand(char* args);
+        bool HandleInstanceScalingOldCheckCommand(char* args);
+        bool HandleInstanceScalingFullSetCommand(char* args);
+        bool HandleInstanceScalingFullCheckCommand(char* args);
 
         Player*   getSelectedPlayer() const;
         Unit*     getSelectedUnit(bool self = true) const;
