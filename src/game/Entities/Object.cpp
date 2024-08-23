@@ -3152,9 +3152,11 @@ int32 WorldObject::CalculateSpellEffectValue(Unit const* target, SpellEntry cons
                 float CLSPowerSpell = spellCLS->BaseDamage;
                 value = value * (CLSPowerCreature / CLSPowerSpell);
             }
+            //sLog.outString("[DEVLOG] WorldObject::CalculateSpellEffectValue: %s %s damage value: %.3f", cInfo->Name, spellProto->SpellName, value);
         }
     }
 
+    // sLog.outString("[DEVLOG] WorldObject::CalculateSpellEffectValue: value: %.3f", value);
     return value;
 }
 

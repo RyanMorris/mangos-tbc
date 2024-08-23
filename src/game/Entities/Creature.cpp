@@ -1333,7 +1333,7 @@ void Creature::SelectLevel(uint32 instanceId, uint32 forcedLevel /*= USE_DEFAULT
     float intellect = 0.f;
     float spirit = 0.f;
 
-    float damageMod = _GetDamageMod(rank, instanceId);
+    float damageMod = 1.0f; //_GetDamageMod(rank, instanceId);
     //if (instanceId > 0)
     //    sLog.outString("[DEVLOG] Creature::SelectLevel instanceId %d, damageMod %.4f", instanceId, damageMod);
     float damageMulti = cinfo->DamageMultiplier * damageMod;
@@ -1540,16 +1540,7 @@ float Creature::_GetHealthMod(int32 Rank, uint32 instanceId)
     }
     if (instanceId > 0)
     {
-        ScalingManagerState* state = sScalingManager.GetInstanceState(instanceId);
-        if (state != nullptr)
-        {
-            healthMod *= state->dpsFactor_;
-            // sLog.outString("[DEVLOG] Creature::_GetHealthMod: instance %d, healthMod %.3f", instanceId, healthMod);
-        }
-        else
-        {
-            sLog.outString("[DEVLOG] Creature::_GetHealthMod: STATE NULL instance %d", instanceId);
-        }
+        healthMod *= sScalingManager.GetHealthMod(instanceId);
     }
     return healthMod;
 }
@@ -1579,16 +1570,7 @@ float Creature::_GetDamageMod(int32 Rank, uint32 instanceId)
     }
     if (instanceId > 0)
     {
-        ScalingManagerState* state = sScalingManager.GetInstanceState(instanceId);
-        if (state != nullptr)
-        {
-            damageMod *= state->tankFactor_ * state->healFactor_;
-            // sLog.outString("[DEVLOG] Creature::_GetDamageMod: instance %d, damageMod %.3f", instanceId, damageMod);
-        }
-        else
-        {
-            sLog.outString("[DEVLOG] Creature::_GetDamageMod: STATE NULL instance %d", instanceId);
-        }
+        damageMod *= sScalingManager.GetDamageMod(instanceId);
     }
     return damageMod;
 }
@@ -1618,16 +1600,7 @@ float Creature::_GetSpellDamageMod(int32 Rank, uint32 instanceId)
     }
     if (instanceId > 0)
     {
-        ScalingManagerState* state = sScalingManager.GetInstanceState(instanceId);
-        if (state != nullptr)
-        {
-            damageMod *= state->tankFactor_ * state->healFactor_;
-            // sLog.outString("[DEVLOG] Creature::_GetSpellDamageMod: instance %d, damageMod %.3f", instanceId, damageMod);
-        }
-        else
-        {
-            sLog.outString("[DEVLOG] Creature::_GetSpellDamageMod: STATE NULL instance %d", instanceId);
-        }
+        damageMod *= sScalingManager.GetDamageMod(instanceId);
     }
     return damageMod;
 }

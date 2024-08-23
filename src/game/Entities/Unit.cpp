@@ -7371,6 +7371,11 @@ int32 Unit::SpellBonusWithCoeffs(SpellEntry const* spellInfo, SpellEffectIndex e
  */
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellSchoolMask schoolMask, SpellEntry const* spellInfo, SpellEffectIndex effectIndex, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
+    //char buffer[64] = "Crystal Strike";
+    //if (spellInfo != nullptr && *spellInfo->SpellName[0] && strcmp(spellInfo->SpellName[0], buffer) == 0)
+    /*if (spellInfo != nullptr)
+        sLog.outString("[DEVLOG] Unit::SpellDamageBonusDone: %s", spellInfo->SpellName[0]);*/
+
     if (!spellInfo || !victim || damagetype == DIRECT_DAMAGE)
         return pdamage;
 
@@ -7876,6 +7881,14 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // ..done pct (by creature type mask)
     DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, creatureTypeMask);
+
+    // Creature damage
+    if (GetTypeId() == TYPEID_UNIT && !((Creature*)this)->IsPet())
+    {
+        Map* map = GetMap();
+        uint32 instanceId = map != nullptr ? map->GetInstanceId() : 0;
+        DoneTotalMod *= Creature::_GetDamageMod(((Creature*)this)->GetCreatureInfo()->Rank, instanceId);
+    }
 
     // special dummys/class scripts and other effects
     // =============================================

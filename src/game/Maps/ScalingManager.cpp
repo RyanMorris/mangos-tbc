@@ -64,3 +64,69 @@ ScalingManagerState* ScalingManager::GetPlayerDefState(uint32 id)
     auto itr = playerDefinedStates_.find(id);
     return itr == playerDefinedStates_.end() ? nullptr : &(itr->second);
 }
+
+float ScalingManager::GetHealthMod(uint32 id, ScalingManagerState* state /*= nullptr*/)
+{
+    if (state == nullptr)
+    {
+        auto itr = instanceStates_.find(id);
+        if (itr == instanceStates_.end())
+            return 1.0f;
+        state = &(itr->second);
+    }
+    switch (state->version_)
+    {
+        case 1:
+        {
+            return state->dpsFactor_;
+        }
+        case 2:
+        {
+            // solo healer
+            if (state->hasHealer_ && !state->hasTank_ && state->numDps_ == 0)
+            {
+                return 0.1f;
+            }
+            float mod = state->hasTank_ ? 0.1f : 0.0f;
+            for (auto i = 0; i < state->numDps_; i++)
+                mod += 0.3f;
+            return mod;
+        }
+        case 3:
+        {
+            return state->healthFactor_;
+        }
+        default: return 1.0f;
+    }
+}
+
+float ScalingManager::GetDamageMod(uint32 id, ScalingManagerState* state /*= nullptr*/)
+{
+    if (state == nullptr)
+    {
+        auto itr = instanceStates_.find(id);
+        if (itr == instanceStates_.end())
+            return 1.0f;
+        state = &(itr->second);
+    }
+    switch (state->version_)
+    {
+        case 1:
+        {
+            return state->tankFactor_ * state->healFactor_;
+        }
+        case 2:
+        {
+            float mod = state->hasTank_ ? 0.4f : 0.0f;
+            mod += state->hasHealer_ ? 0.3f : 0.0f;
+            for (auto i = 0; i < state->numDps_; i++)
+                mod += 0.1f;
+            return mod;
+        }
+        case 3:
+        {
+            return state->dmgFactor_;
+        }
+        default: return 1.0f;
+    }
+}

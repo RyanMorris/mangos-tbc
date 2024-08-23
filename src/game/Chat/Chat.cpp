@@ -942,6 +942,24 @@ ChatCommand* ChatHandler::getCommandTable()
         { nullptr,         0,                  false,  nullptr,                                        "", nullptr }
     };
 
+    static ChatCommand instanceScalingOldCommandTable[] =
+    {
+        { "set",            SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingOldSetCommand,     "", nullptr },
+        { "s",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingOldSetCommand,     "", nullptr },
+        { "check",          SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingOldCheckCommand,   "", nullptr },
+        { "c",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingOldCheckCommand,   "", nullptr },
+        { nullptr,          0,                  false, nullptr,                                              "", nullptr }
+    };
+
+    static ChatCommand instanceScalingFullCommandTable[] =
+    {
+        { "set",            SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingFullSetCommand,     "", nullptr },
+        { "s",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingFullSetCommand,     "", nullptr },
+        { "check",          SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingFullCheckCommand,   "", nullptr },
+        { "c",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingFullCheckCommand,   "", nullptr },
+        { nullptr,          0,                  false, nullptr,                                              "", nullptr }
+    };
+
     static ChatCommand instanceScalingCommandTable[] =
     {
         { "set",            SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingSetCommand,     "", nullptr },
@@ -1046,6 +1064,8 @@ ChatCommand* ChatHandler::getCommandTable()
         { "whispers",       SEC_MODERATOR,      false, &ChatHandler::HandleWhispersCommand,            "", nullptr },
         { "wr",             SEC_PLAYER,         false, &ChatHandler::HandleWhisperRestrictionCommand,  "", nullptr },
         { "is",             SEC_PLAYER,         false, nullptr,                                        "", instanceScalingCommandTable },
+        { "iso",            SEC_PLAYER,         false, nullptr,                                        "", instanceScalingOldCommandTable },
+        { "isr",            SEC_PLAYER,         false, nullptr,                                        "", instanceScalingFullCommandTable },
         { "pinfo",          SEC_GAMEMASTER,     true,  &ChatHandler::HandlePInfoCommand,               "", nullptr },
         { "respawn",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleRespawnCommand,             "", nullptr },
         { "send",           SEC_MODERATOR,      true,  nullptr,                                        "", sendCommandTable },

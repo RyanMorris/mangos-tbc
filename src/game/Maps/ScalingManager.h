@@ -29,9 +29,36 @@ class Map;
 
 struct ScalingManagerState
 {
+    int32 version_{ 2 }; // which version to use
+
     float tankFactor_{ 1.0f };  // how many tanks out of max, 0.0 - 1.0, ie 2/2 or 1/2
     float healFactor_{ 1.0f };  // how many healers out of max, 0.0 - 1.0, ie 2/2 or 1/2
     float dpsFactor_{ 1.0f };   // how many dps out of max, 0.0 - 1.0, ie 2/2 or 1/2
+
+    // new way, or dungeon way
+    bool hasTank_{ true };
+    bool hasHealer_{ true };
+    int32 numDps_{ 3 };
+
+    // full control way
+    float dmgFactor_{ 1.0f };  
+    float healthFactor_{ 1.0f };  
+
+    ScalingManagerState() {}
+
+    ScalingManagerState(float tank, float heals, float dps)
+        : version_(1), tankFactor_(tank), healFactor_(heals), dpsFactor_(dps)
+    {}
+
+    ScalingManagerState(bool hasTank, bool hasHealer, int32 numDps)
+        : version_(2), hasTank_(hasTank), hasHealer_(hasHealer), numDps_(numDps)
+    {}
+
+    ScalingManagerState(float dmg, float health)
+        : version_(3), dmgFactor_(dmg), healthFactor_(health)
+    {}
+
+    ~ScalingManagerState() {}
 };
 
 
@@ -49,6 +76,9 @@ public:
     ScalingStateMap& GetInstanceStates() { return instanceStates_; }
     ScalingManagerState* GetInstanceState(uint32 id);
     ScalingManagerState* GetPlayerDefState(uint32 id);
+
+    float GetHealthMod(uint32 id, ScalingManagerState* state = nullptr);
+    float GetDamageMod(uint32 id, ScalingManagerState* state = nullptr);
 
 private:
     ScalingStateMap instanceStates_;            // state of each map instance      
