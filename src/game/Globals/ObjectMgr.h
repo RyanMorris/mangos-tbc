@@ -1165,6 +1165,7 @@ class ObjectMgr
 
         QuestRelationsMapBounds GetCreatureQuestInvolvedRelationsMapBounds(uint32 entry) const
         {
+            //sLog.outString("[DEVLOG] QuestRelationsMapBounds::GetCreatureQuestInvolvedRelationsMapBounds entry %d", entry);
             return m_CreatureQuestInvolvedRelations.equal_range(entry);
         }
 
