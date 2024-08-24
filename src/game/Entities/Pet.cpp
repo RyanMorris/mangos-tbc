@@ -1359,11 +1359,11 @@ void Pet::InitStatsForLevel(uint32 petlevel)
                     float minDmg = (cCLS->BaseDamage * cInfo->DamageVariance + (cCLS->BaseMeleeAttackPower / 14) * (cInfo->MeleeBaseAttackTime / 1000.f)) * cInfo->DamageMultiplier;
 
                     // Apply custom damage setting (from config)
-                    if (!IsPlayerControlled())
-                    {
-                        minDmg *= _GetDamageMod(cInfo->Rank, instanceId);
-                        //sLog.outString("[DEVLOG] Pet::InitStatsForLevel: scaling minDmg %.3f", minDmg);
-                    }
+                    //if (!IsPlayerControlled())
+                    //{
+                    //    minDmg *= _GetDamageMod(cInfo->Rank, instanceId);
+                    //    //sLog.outString("[DEVLOG] Pet::InitStatsForLevel: scaling minDmg %.3f", minDmg);
+                    //}
 
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(minDmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(minDmg * 1.5));

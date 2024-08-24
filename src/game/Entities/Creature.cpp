@@ -1857,8 +1857,10 @@ bool Creature::HasQuest(uint32 quest_id) const
 bool Creature::HasInvolvedQuest(uint32 quest_id) const
 {
     QuestRelationsMapBounds bounds = sObjectMgr.GetCreatureQuestInvolvedRelationsMapBounds(GetEntry());
+    //sLog.outString("[DEVLOG] Creature::HasInvolvedQuest hit quest_id %d", quest_id);
     for (QuestRelationsMap::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
+        //sLog.outString("[DEVLOG] Creature::HasInvolvedQuest itr->second %d", itr->second);
         if (itr->second == quest_id)
             return true;
     }
