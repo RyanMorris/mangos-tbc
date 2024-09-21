@@ -1440,7 +1440,11 @@ void Creature::SelectLevel(uint32 instanceId, uint32 forcedLevel /*= USE_DEFAULT
         }
     }
 
-    float healthMod = _GetHealthMod(rank, instanceId); // Apply custom config settting
+    float healthMod = 1.0f;
+    if (GetTypeId() == TYPEID_UNIT && !this->IsPlayerControlled())
+    {
+        healthMod = _GetHealthMod(rank, instanceId); // Apply custom config settting
+    }
     health *= healthMod;
     if (health < 1)
         health = 1;

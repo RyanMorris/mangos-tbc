@@ -566,6 +566,10 @@ uint32 ArenaTeam::GetPoints(uint32 MemberRating)
     //else if (m_Type == ARENA_TYPE_3v3)
     //    points *= 0.88f;
 
+    // FOR NOW, until the double flush system is working
+    // multiple weekly points so that it takes 3 weeks or so to get 2h wep at 1500 rating
+    points *= 3.63f;
+
     return (uint32) points;
 }
 

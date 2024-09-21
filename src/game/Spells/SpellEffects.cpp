@@ -8406,10 +8406,14 @@ void Spell::EffectTransmitted(SpellEffectIndex eff_idx)
             int32 lastSec = 0;
             switch (urand(0, 3))
             {
-                case 0: lastSec =  3; break;
+                /*case 0: lastSec =  3; break;
                 case 1: lastSec =  7; break;
                 case 2: lastSec = 13; break;
-                case 3: lastSec = 17; break;
+                case 3: lastSec = 17; break;*/
+                case 0: lastSec = 15; break;
+                case 1: lastSec = 16; break;
+                case 2: lastSec = 17; break;
+                case 3: lastSec = 18; break;
             }
 
             duration = duration - lastSec * IN_MILLISECONDS + FISHING_BOBBER_READY_TIME * IN_MILLISECONDS;

@@ -28,6 +28,7 @@
 #include "Entities/ItemEnchantmentMgr.h"
 #include "Tools/Language.h"
 #include "BattleGround/BattleGroundMgr.h"
+#include "Maps/ScalingManager.h"
 #include <sstream>
 #include <iomanip>
 
@@ -461,6 +462,8 @@ LootItem::LootItem(uint32 _itemId, uint32 _count, uint32 _randomSuffix, int32 _r
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
 bool LootItem::AllowedForPlayer(Player const* player, WorldObject const* lootTarget, Player const* masterLooter) const
 {
+    // sLog.outString("[DEVLOG] LootItem::AllowedForPlayer hit");
+
     if (!itemProto)
         return false;
 
@@ -492,6 +495,8 @@ bool LootItem::AllowedForPlayer(Player const* player, WorldObject const* lootTar
             return false;
     }
 
+    //std::string name = itemProto->Name1 != nullptr ? itemProto->Name1 : "Name NULL";
+    //sLog.outString("[DEVLOG] LootItem::AllowedForPlayer true %s", name);
     return true;
 }
 
@@ -590,6 +595,8 @@ LootSlotType LootItem::GetSlotTypeForSharedLoot(Player const* player, Loot const
 
 bool LootItem::IsAllowed(Player const* player, Loot const* loot) const
 {
+    //sLog.outString("[DEVLOG] LootItem::IsAllowed hit");
+
     if (!loot->m_isChest)
         return allowedGuid.find(player->GetObjectGuid()) != allowedGuid.end();
 
@@ -929,6 +936,7 @@ void Loot::AddItem(LootStoreItem const& item)
             m_haveItemOverThreshold = true;
 
         m_lootItems.push_back(lootItem);
+        //sLog.outString("[DEVLOG] Loot::AddItem(item) hit %u", lootItem->itemId);
     }
 }
 
@@ -940,6 +948,7 @@ void Loot::AddItem(uint32 itemid, uint32 count, uint32 randomSuffix, int32 rando
         LootItem* lootItem = new LootItem(itemid, count, randomSuffix, randomPropertyId, m_maxSlot++);
 
         m_lootItems.push_back(lootItem);
+        //sLog.outString("[DEVLOG] Loot::AddItem(_, _, _, _) hit %u", lootItem->itemId);
 
         // add permission to pick this item to loot owner
         for (auto allowedGuid : m_ownerSet)
@@ -950,6 +959,8 @@ void Loot::AddItem(uint32 itemid, uint32 count, uint32 randomSuffix, int32 rando
 // Calls processor of corresponding LootTemplate (which handles everything including references)
 bool Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* lootOwner, bool /*personal*/, bool noEmptyError)
 {
+    //sLog.outString("[DEVLOG] Loot::FillLoot hit");
+
     // Must be provided
     if (!lootOwner)
         return false;
@@ -2471,17 +2482,53 @@ void LootTemplate::LootGroup::Process(Loot& loot, Player const* lootOwner, bool 
         groupStats = lootStatsData->stats->GetStatsForLootId(lootStatsData->groupIdOrItemId);
     }
 
+    ProcessRoll(loot, lootOwner, rate, lootStatsData, groupStats);
+
+    // GRIFT CODE
+    if (lootOwner != nullptr)
+    {
+        auto instanceId = lootOwner->GetInstanceId();
+        if (instanceId > 0)
+        {
+            sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process grift instanceId > 0");
+            auto state = sScalingManager.GetInstanceState(instanceId);
+            if (state != nullptr && state->difficulty_ > 1)
+            {
+                sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process grift extra loot 1");
+                ProcessRoll(loot, lootOwner, rate, lootStatsData, groupStats);
+
+                if (state->difficulty_ > 2)
+                {
+                    sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process grift extra loot 2");
+                    ProcessRoll(loot, lootOwner, rate, lootStatsData, groupStats);
+                }
+            }
+            else
+            {
+                if (state == nullptr)
+                    sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process grift state null");
+                else
+                    sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process grift difficulty %d", state->difficulty_);
+            }
+        }
+    }
+}
+
+void LootTemplate::LootGroup::ProcessRoll(Loot& loot, Player const* lootOwner, bool rate,
+                                          LootStatsData* lootStatsData /*= nullptr*/, LootStats::GroupStats* groupStats /*= nullptr*/) const
+{
     LootStoreItem const* item = Roll(loot, lootOwner);
     if (item != nullptr)
     {
         if (item->mincountOrRef > 0)
         {
+            //sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process hit, calling loot.AddItem()");
+
             loot.AddItem(*item);
             // only used if we want some stats
             if (groupStats)
                 groupStats->IncItemCount(item->group, std::make_pair(item->itemid, item->itemIndex));
-        }
-        else
+        } else
         {
             // we should continue and get next loot reference to process this loot list
             LootTemplate const* lRef = LootTemplates_Reference.GetLootFor(-item->mincountOrRef);
@@ -2569,12 +2616,17 @@ void LootTemplate::AddEntry(LootStoreItem const& item)
 {
     if (item.group > 0)           // Group
     {
+        //sLog.outString("[DEVLOG] LootTemplate::AddEntry hit, has group %u", item.itemid);
+
         if (item.group >= Groups.size())
             Groups.resize(item.group);                      // Adds new group the the loot template if needed
         Groups[item.group - 1].AddEntry(item);              // Adds new entry to the group
     }
-    else                                                    // Non-grouped entries and references are stored together
+    else // Non-grouped entries and references are stored together
+    {
+        //sLog.outString("[DEVLOG] LootTemplate::AddEntry hit, no group %u", item.itemid);
         Entries.push_back(item);
+    }
 }
 
 // Rolls for every item in the template and adds the rolled items the the loot
@@ -2618,6 +2670,8 @@ void LootTemplate::Process(Loot& loot, Player const* lootOwner, bool rate, LootS
         }
         else                                                // Plain entries (not a reference, not grouped)
         {
+            //sLog.outString("[DEVLOG] LootTemplate::Process hit, calling loot.AddItem()");
+            
             loot.AddItem(Entrie);                               // Chance is already checked, just add
             // only used if we want some stats
             if (groupStats)

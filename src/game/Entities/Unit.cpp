@@ -7385,7 +7385,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellSchoolMask schoolMask, Spel
     int32 DoneTotal = 0;
 
     // Creature damage
-    if (GetTypeId() == TYPEID_UNIT && !((Creature*)this)->IsPet())
+    if (GetTypeId() == TYPEID_UNIT /*&& !((Creature*)this)->IsPet()*/ && !((Creature*)this)->IsPlayerControlled())
     {
         Map* map = GetMap();
         uint32 instanceId = map != nullptr ? map->GetInstanceId() : 0;
@@ -7873,7 +7873,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, creatureTypeMask);
 
     // Creature damage
-    if (GetTypeId() == TYPEID_UNIT && !((Creature*)this)->IsPet())
+    if (GetTypeId() == TYPEID_UNIT /*&& !((Creature*)this)->IsPet()*/ && !((Creature*)this)->IsPlayerControlled())
     {
         Map* map = GetMap();
         uint32 instanceId = map != nullptr ? map->GetInstanceId() : 0;

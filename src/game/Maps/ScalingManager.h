@@ -30,6 +30,8 @@ class Map;
 struct ScalingManagerState
 {
     int32 version_{ 2 }; // which version to use
+    int32 difficulty_{ 1 };
+    int32 style_{ 1 };
 
     float tankFactor_{ 1.0f };  // how many tanks out of max, 0.0 - 1.0, ie 2/2 or 1/2
     float healFactor_{ 1.0f };  // how many healers out of max, 0.0 - 1.0, ie 2/2 or 1/2
@@ -54,8 +56,8 @@ struct ScalingManagerState
         : version_(2), hasTank_(hasTank), hasHealer_(hasHealer), numDps_(numDps)
     {}
 
-    ScalingManagerState(float dmg, float health)
-        : version_(3), dmgFactor_(dmg), healthFactor_(health)
+    ScalingManagerState(float health, float dmg)
+        : version_(3), healthFactor_(health), dmgFactor_(dmg)
     {}
 
     ~ScalingManagerState() {}
@@ -76,6 +78,8 @@ public:
     ScalingStateMap& GetInstanceStates() { return instanceStates_; }
     ScalingManagerState* GetInstanceState(uint32 id);
     ScalingManagerState* GetPlayerDefState(uint32 id);
+
+    ScalingManagerState GetStateDefinition(int difficulty, int style);
 
     float GetHealthMod(uint32 id, ScalingManagerState* state = nullptr);
     float GetDamageMod(uint32 id, ScalingManagerState* state = nullptr);

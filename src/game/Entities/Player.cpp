@@ -5478,13 +5478,18 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
 uint8 GetFishingStepsNeededToLevelUp(uint32 SkillValue)
 {
     // These formulas are guessed to be as close as possible to how the skill difficulty curve for fishing was on Retail.
-    if (SkillValue < 75)
+    /*if (SkillValue < 75)
         return 1;
 
     if (SkillValue <= 300)
         return SkillValue / 44;
 
-    return SkillValue / 31;
+    return SkillValue / 31;*/
+
+    if (SkillValue < 180)
+        return 1;
+
+    return SkillValue / 90;
 }
 
 bool Player::UpdateFishingSkill()
@@ -5504,7 +5509,9 @@ bool Player::UpdateFishingSkill()
     {
         m_fishingSteps = 0;
 
-        return UpdateSkillPro(SKILL_FISHING, 100*10, 1);
+        uint16 gathering_skill_gain = static_cast<uint16>(sWorld.getConfig(CONFIG_UINT32_SKILL_GAIN_GATHERING));
+
+        return UpdateSkillPro(SKILL_FISHING, 100*10, gathering_skill_gain);
     }
 
     return false;

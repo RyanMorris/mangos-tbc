@@ -474,6 +474,8 @@ struct world_map_kalimdor : public ScriptedMap
 
     void OnEventHappened(uint16 event_id, bool activate, bool /*resume*/) override
     {
+        //sLog.outString("[DEVLOG] world_kalimdor::OnEventHappened: event_id %u", event_id);
+
         if (event_id == GAME_EVENT_BREWFEST_DARK_IRON_ATTACK && activate)
             m_brewfestEvent.StartDarkIronAttackEvent();
         else if (event_id == GAME_EVENT_BREWFEST_KEG_TAPPING && activate)
