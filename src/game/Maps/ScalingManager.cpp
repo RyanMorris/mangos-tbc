@@ -67,58 +67,6 @@ ScalingManagerState* ScalingManager::GetPlayerDefState(uint32 id)
     return itr == playerDefinedStates_.end() ? nullptr : &(itr->second);
 }
 
-ScalingManagerState ScalingManager::GetStateDefinition(int difficulty, int style)
-{
-    // sLog.outString("[DEVLOG] ScalingManager::GetStateDefinition state in: diff %d  style %d", difficulty, style);
-    ScalingManagerState state;
-    if (difficulty == 1)
-    {
-        switch (style)
-        {
-            case 1: state = ScalingManagerState(0.35f, 0.06f); break;
-            case 2: state = ScalingManagerState(0.28f, 0.10f); break;
-            case 3: state = ScalingManagerState(0.22f, 0.16f); break;
-            case 4: state = ScalingManagerState(0.17f, 0.23f); break;
-            case 5: state = ScalingManagerState(0.13f, 0.31f); break;
-            case 6: state = ScalingManagerState(0.10f, 0.40f); break;
-            case 7: state = ScalingManagerState(0.08f, 0.50f); break;
-            default: state = ScalingManagerState(1.0f, 1.0f);
-        }
-    }
-    else if (difficulty == 2)
-    {
-        switch (style)
-        {
-            case 1: state = ScalingManagerState(0.42f, 0.13f); break;
-            case 2: state = ScalingManagerState(0.35f, 0.17f); break;
-            case 3: state = ScalingManagerState(0.29f, 0.23f); break;
-            case 4: state = ScalingManagerState(0.24f, 0.30f); break;
-            case 5: state = ScalingManagerState(0.20f, 0.38f); break;
-            case 6: state = ScalingManagerState(0.17f, 0.47f); break;
-            case 7: state = ScalingManagerState(0.15f, 0.57f); break;
-            default: state = ScalingManagerState(1.0f, 1.0f);
-        }
-    }
-    else
-    {
-        switch (style)
-        {
-            case 1: state = ScalingManagerState(0.49f, 0.20f); break;
-            case 2: state = ScalingManagerState(0.42f, 0.24f); break;
-            case 3: state = ScalingManagerState(0.36f, 0.30f); break;
-            case 4: state = ScalingManagerState(0.31f, 0.37f); break;
-            case 5: state = ScalingManagerState(0.27f, 0.45f); break;
-            case 6: state = ScalingManagerState(0.24f, 0.54f); break;
-            case 7: state = ScalingManagerState(0.22f, 0.64f); break;
-            default: state = ScalingManagerState(1.0f, 1.0f);
-        }
-    }
-    state.difficulty_ = difficulty;
-    state.style_ = style;
-    //sLog.outString("[DEVLOG] ScalingManager::GetStateDefinition state set: diff %d  style %d", state.difficulty_, state.style_);
-    return state;
-}
-
 float ScalingManager::GetHealthMod(uint32 id, ScalingManagerState* state /*= nullptr*/)
 {
     if (state == nullptr)
@@ -183,4 +131,267 @@ float ScalingManager::GetDamageMod(uint32 id, ScalingManagerState* state /*= nul
         }
         default: return 1.0f;
     }
+}
+
+ScalingManagerState ScalingManager::GetStateDefinition(int difficulty, int style, int type)
+{
+    // sLog.outString("[DEVLOG] ScalingManager::GetStateDefinition state in: diff %d  style %d", difficulty, style);
+    switch (type)
+    {
+        case 1: return GetStateDefinitionNormal(difficulty, style);
+        case 2: return GetStateDefinitionHeroic(difficulty, style);
+        case 3: return GetStateDefinition10Man(difficulty, style);
+        case 4: return GetStateDefinition25Man(difficulty, style);
+        default: return GetStateDefinitionNormal(difficulty, style);
+    }
+}
+
+ScalingManagerState ScalingManager::GetStateDefinitionNormal(int difficulty, int style)
+{
+    ScalingManagerState state;
+    if (difficulty == 1)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.28f, 0.05f); break;
+            case 2: state = ScalingManagerState(0.22f, 0.09f); break;
+            case 3: state = ScalingManagerState(0.17f, 0.14f); break;
+            case 4: state = ScalingManagerState(0.13f, 0.21f); break;
+            case 5: state = ScalingManagerState(0.10f, 0.28f); break;
+            case 6: state = ScalingManagerState(0.07f, 0.36f); break;
+            case 7: state = ScalingManagerState(0.05f, 0.45f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else if (difficulty == 2)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.35f, 0.06f); break;
+            case 2: state = ScalingManagerState(0.28f, 0.10f); break;
+            case 3: state = ScalingManagerState(0.22f, 0.16f); break;
+            case 4: state = ScalingManagerState(0.17f, 0.23f); break;
+            case 5: state = ScalingManagerState(0.13f, 0.31f); break;
+            case 6: state = ScalingManagerState(0.10f, 0.40f); break;
+            case 7: state = ScalingManagerState(0.08f, 0.50f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else if (difficulty == 3)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.42f, 0.13f); break;
+            case 2: state = ScalingManagerState(0.35f, 0.17f); break;
+            case 3: state = ScalingManagerState(0.29f, 0.23f); break;
+            case 4: state = ScalingManagerState(0.24f, 0.30f); break;
+            case 5: state = ScalingManagerState(0.20f, 0.38f); break;
+            case 6: state = ScalingManagerState(0.17f, 0.47f); break;
+            case 7: state = ScalingManagerState(0.15f, 0.57f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.49f, 0.20f); break;
+            case 2: state = ScalingManagerState(0.42f, 0.24f); break;
+            case 3: state = ScalingManagerState(0.36f, 0.30f); break;
+            case 4: state = ScalingManagerState(0.31f, 0.37f); break;
+            case 5: state = ScalingManagerState(0.27f, 0.45f); break;
+            case 6: state = ScalingManagerState(0.24f, 0.54f); break;
+            case 7: state = ScalingManagerState(0.22f, 0.64f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    }
+    state.difficulty_ = difficulty;
+    state.style_ = style;
+    //sLog.outString("[DEVLOG] ScalingManager::GetStateDefinition state set: diff %d  style %d", state.difficulty_, state.style_);
+    return state;
+}
+
+ScalingManagerState ScalingManager::GetStateDefinitionHeroic(int difficulty, int style)
+{
+    ScalingManagerState state;
+    if (difficulty == 1)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.28f, 0.05f); break;
+            case 2: state = ScalingManagerState(0.22f, 0.09f); break;
+            case 3: state = ScalingManagerState(0.17f, 0.14f); break;
+            case 4: state = ScalingManagerState(0.13f, 0.21f); break;
+            case 5: state = ScalingManagerState(0.10f, 0.28f); break;
+            case 6: state = ScalingManagerState(0.07f, 0.36f); break;
+            case 7: state = ScalingManagerState(0.05f, 0.45f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else if (difficulty == 2)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.35f, 0.06f); break;
+            case 2: state = ScalingManagerState(0.28f, 0.10f); break;
+            case 3: state = ScalingManagerState(0.22f, 0.16f); break;
+            case 4: state = ScalingManagerState(0.17f, 0.23f); break;
+            case 5: state = ScalingManagerState(0.13f, 0.31f); break;
+            case 6: state = ScalingManagerState(0.10f, 0.40f); break;
+            case 7: state = ScalingManagerState(0.08f, 0.50f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else if (difficulty == 3)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.42f, 0.13f); break;
+            case 2: state = ScalingManagerState(0.35f, 0.17f); break;
+            case 3: state = ScalingManagerState(0.29f, 0.23f); break;
+            case 4: state = ScalingManagerState(0.24f, 0.30f); break;
+            case 5: state = ScalingManagerState(0.20f, 0.38f); break;
+            case 6: state = ScalingManagerState(0.17f, 0.47f); break;
+            case 7: state = ScalingManagerState(0.15f, 0.57f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.49f, 0.20f); break;
+            case 2: state = ScalingManagerState(0.42f, 0.24f); break;
+            case 3: state = ScalingManagerState(0.36f, 0.30f); break;
+            case 4: state = ScalingManagerState(0.31f, 0.37f); break;
+            case 5: state = ScalingManagerState(0.27f, 0.45f); break;
+            case 6: state = ScalingManagerState(0.24f, 0.54f); break;
+            case 7: state = ScalingManagerState(0.22f, 0.64f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    }
+    state.difficulty_ = difficulty;
+    state.style_ = style;
+    //sLog.outString("[DEVLOG] ScalingManager::GetStateDefinition state set: diff %d  style %d", state.difficulty_, state.style_);
+    return state;
+}
+
+ScalingManagerState ScalingManager::GetStateDefinition10Man(int difficulty, int style)
+{
+    ScalingManagerState state;
+    if (difficulty == 1)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.084f, 0.04f); break;
+            case 2: state = ScalingManagerState(0.066f, 0.08f); break;
+            case 3: state = ScalingManagerState(0.05f, 0.13f); break;
+            case 4: state = ScalingManagerState(0.037f, 0.19f); break;
+            case 5: state = ScalingManagerState(0.026f, 0.25f); break;
+            case 6: state = ScalingManagerState(0.017f, 0.30f); break;
+            case 7: state = ScalingManagerState(0.01f, 0.36f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else if (difficulty == 2)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.105f, 0.04f); break;
+            case 2: state = ScalingManagerState(0.0825f, 0.08f); break;
+            case 3: state = ScalingManagerState(0.07f, 0.13f); break;
+            case 4: state = ScalingManagerState(0.055f, 0.19f); break;
+            case 5: state = ScalingManagerState(0.04f, 0.25f); break;
+            case 6: state = ScalingManagerState(0.025f, 0.30f); break;
+            case 7: state = ScalingManagerState(0.01f, 0.36f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else if (difficulty == 3)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.13f, 0.08f); break;
+            case 2: state = ScalingManagerState(0.105f, 0.13f); break;
+            case 3: state = ScalingManagerState(0.0825f, 0.19f); break;
+            case 4: state = ScalingManagerState(0.07f, 0.25f); break;
+            case 5: state = ScalingManagerState(0.055f, 0.30f); break;
+            case 6: state = ScalingManagerState(0.04f, 0.36f); break;
+            case 7: state = ScalingManagerState(0.025f, 0.42f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.13f, 0.08f); break;
+            case 2: state = ScalingManagerState(0.105f, 0.13f); break;
+            case 3: state = ScalingManagerState(0.0825f, 0.19f); break;
+            case 4: state = ScalingManagerState(0.07f, 0.25f); break;
+            case 5: state = ScalingManagerState(0.055f, 0.30f); break;
+            case 6: state = ScalingManagerState(0.04f, 0.36f); break;
+            case 7: state = ScalingManagerState(0.025f, 0.42f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    }
+    state.difficulty_ = difficulty;
+    state.style_ = style;
+    //sLog.outString("[DEVLOG] ScalingManager::GetStateDefinition state set: diff %d  style %d", state.difficulty_, state.style_);
+    return state;
+}
+
+ScalingManagerState ScalingManager::GetStateDefinition25Man(int difficulty, int style)
+{
+    ScalingManagerState state;
+    if (difficulty == 1)
+    {
+        switch (style)
+        {
+            // think I am good with these as the easiest values
+            // lower than on spreadsheet
+            case 1: state = ScalingManagerState(0.065f, 0.009f); break;
+            case 2: state = ScalingManagerState(0.052f, 0.018f); break;
+            case 3: state = ScalingManagerState(0.04f, 0.3f); break;
+            case 4: state = ScalingManagerState(0.03f, 0.045f); break;
+            case 5: state = ScalingManagerState(0.022f, 0.066f); break;
+            case 6: state = ScalingManagerState(0.015f, 0.08f); break;
+            case 7: state = ScalingManagerState(0.007f, 0.1f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else if (difficulty == 2)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.065f, 0.009f); break;
+            case 2: state = ScalingManagerState(0.052f, 0.018f); break;
+            case 3: state = ScalingManagerState(0.04f, 0.3f); break;
+            case 4: state = ScalingManagerState(0.03f, 0.045f); break;
+            case 5: state = ScalingManagerState(0.022f, 0.066f); break;
+            case 6: state = ScalingManagerState(0.015f, 0.08f); break;
+            case 7: state = ScalingManagerState(0.007f, 0.1f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else if (difficulty == 3)
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.065f, 0.009f); break;
+            case 2: state = ScalingManagerState(0.052f, 0.018f); break;
+            case 3: state = ScalingManagerState(0.04f, 0.3f); break;
+            case 4: state = ScalingManagerState(0.03f, 0.045f); break;
+            case 5: state = ScalingManagerState(0.022f, 0.066f); break;
+            case 6: state = ScalingManagerState(0.015f, 0.08f); break;
+            case 7: state = ScalingManagerState(0.007f, 0.1f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    } else
+    {
+        switch (style)
+        {
+            case 1: state = ScalingManagerState(0.065f, 0.009f); break;
+            case 2: state = ScalingManagerState(0.052f, 0.018f); break;
+            case 3: state = ScalingManagerState(0.04f, 0.3f); break;
+            case 4: state = ScalingManagerState(0.03f, 0.045f); break;
+            case 5: state = ScalingManagerState(0.022f, 0.066f); break;
+            case 6: state = ScalingManagerState(0.015f, 0.08f); break;
+            case 7: state = ScalingManagerState(0.007f, 0.1f); break;
+            default: state = ScalingManagerState(1.0f, 1.0f);
+        }
+    }
+    state.difficulty_ = difficulty;
+    state.style_ = style;
+    //sLog.outString("[DEVLOG] ScalingManager::GetStateDefinition state set: diff %d  style %d", state.difficulty_, state.style_);
+    return state;
 }

@@ -534,16 +534,14 @@ bool ChatHandler::HandleGriftSetCommand(char* args)
     }
 
     // validate all the args required are supplied
-    /*char* pDifficulty = ExtractQuotedOrLiteralArg(&args);
-    std::string difficulty = pDifficulty;
-    if (!pDifficulty)
-        success = false;*/
-
-    int difficulty, style;
+    int difficulty, style, type;
     if (!ExtractInt32(&args, difficulty))
         success = false;
 
     if (success && !ExtractInt32(&args, style))
+        success = false;
+
+    if (success && !ExtractInt32(&args, type))
         success = false;
 
     if (!success)
@@ -568,7 +566,7 @@ bool ChatHandler::HandleGriftSetCommand(char* args)
     // set the scaling for the players instance
     if (success)
     {
-        ScalingManagerState state = sScalingManager.GetStateDefinition(difficulty, style);
+        ScalingManagerState state = sScalingManager.GetStateDefinition(difficulty, style, type);
         //PSendSysMessage("Grift state saved difficulty: %d, style: %d", state.difficulty_, state.style_);
         success = sScalingManager.InserPlayerDef(playerId, state);
     }
@@ -577,7 +575,7 @@ bool ChatHandler::HandleGriftSetCommand(char* args)
     {
         auto state = sScalingManager.GetPlayerDefState(playerId);
         if (state != nullptr)
-            PSendSysMessage("Greater Rift command success: difficulty: %d  dmg: %.3f  health: %.3f", state->difficulty_, state->dmgFactor_, state->healthFactor_);
+            PSendSysMessage("Greater Rift command success: difficulty: %d  health: %.3f  dmg: %.3f", state->difficulty_, state->healthFactor_, state->dmgFactor_);
         return true;
     } else
     {
@@ -609,8 +607,8 @@ bool ChatHandler::HandleGriftCheckCommand(char* /*args*/)
         {
             auto healthP = sScalingManager.GetHealthMod(0, state) * 100.0f;
             auto damageP = sScalingManager.GetDamageMod(0, state) * 100.0f;
-            PSendSysMessage("::PLAYER STATE:: difficulty: %d, SCALING -> damage: %.3f%%  health: %.3f%%",
-                state->difficulty_, damageP, healthP);
+            PSendSysMessage("::PLAYER STATE:: difficulty: %d, SCALING -> health: %.3f%%  damage: %.3f%%",
+                state->difficulty_, healthP, damageP);
         } else
             PSendSysMessage("N/A");
 
@@ -622,9 +620,9 @@ bool ChatHandler::HandleGriftCheckCommand(char* /*args*/)
     {
         auto healthP = sScalingManager.GetHealthMod(0, state) * 100.0f;
         auto damageP = sScalingManager.GetDamageMod(0, state) * 100.0f;
-        PSendSysMessage("::INSTANCE STATE:: instanceId: %d, difficulty: %d, SCALING -> damage: %.3f%%  health: %.3f%%",
+        PSendSysMessage("::INSTANCE STATE:: instanceId: %d, difficulty: %d, SCALING -> health: %.3f%%  damage: %.3f%%",
             instanceId, state->difficulty_,
-            damageP, healthP);
+            healthP, damageP);
     } else
         PSendSysMessage("N/A");
 

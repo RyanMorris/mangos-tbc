@@ -79,14 +79,19 @@ public:
     ScalingManagerState* GetInstanceState(uint32 id);
     ScalingManagerState* GetPlayerDefState(uint32 id);
 
-    ScalingManagerState GetStateDefinition(int difficulty, int style);
-
     float GetHealthMod(uint32 id, ScalingManagerState* state = nullptr);
     float GetDamageMod(uint32 id, ScalingManagerState* state = nullptr);
+
+    ScalingManagerState GetStateDefinition(int difficulty, int style, int type);
 
 private:
     ScalingStateMap instanceStates_;            // state of each map instance      
     ScalingStateMap playerDefinedStates_;       // each player can setup values, then the instance uses their settings to create the map
+
+    ScalingManagerState GetStateDefinitionNormal(int difficulty, int style);
+    ScalingManagerState GetStateDefinitionHeroic(int difficulty, int style);
+    ScalingManagerState GetStateDefinition10Man(int difficulty, int style);
+    ScalingManagerState GetStateDefinition25Man(int difficulty, int style);
 };
 
 #define sScalingManager MaNGOS::Singleton<ScalingManager>::Instance()

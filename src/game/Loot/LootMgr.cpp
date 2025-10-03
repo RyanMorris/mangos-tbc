@@ -2494,12 +2494,16 @@ void LootTemplate::LootGroup::Process(Loot& loot, Player const* lootOwner, bool 
             auto state = sScalingManager.GetInstanceState(instanceId);
             if (state != nullptr && state->difficulty_ > 1)
             {
-                sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process grift extra loot 1");
-                ProcessRoll(loot, lootOwner, rate, lootStatsData, groupStats);
-
-                if (state->difficulty_ > 2)
+                // difficulty 2 == 50% chance to add extra loot, otherwise guarantee
+                uint32 chance = state->difficulty_ == 2 ? urand(0, 1) : 1;
+                if (chance)
                 {
-                    sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process grift extra loot 2");
+                    sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process grift difficulty 2+ extra loot given");
+                    ProcessRoll(loot, lootOwner, rate, lootStatsData, groupStats);
+                }
+                if (state->difficulty_ > 3)
+                {
+                    sLog.outString("[DEVLOG] LootTemplate::LootGroup::Process grift difficulty > 3 extra loot given");
                     ProcessRoll(loot, lootOwner, rate, lootStatsData, groupStats);
                 }
             }
