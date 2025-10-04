@@ -19,8 +19,11 @@ public:
     SeasonManager() = default;
     ~SeasonManager() {};
 
+    bool InsertPlayerStats(ObjectGuid playerId, const SeasonCharacterStats& stats);
+    SeasonCharacterStats* GetPlayerStats(ObjectGuid playerId);
+
 private:
-    std::unordered_map<uint32, SeasonCharacterStats> characterStatsMap;
+    std::unordered_map<ObjectGuid, SeasonCharacterStats> playerStatsMap;
 };
 
 #define sSeasonManager MaNGOS::Singleton<SeasonManager>::Instance()

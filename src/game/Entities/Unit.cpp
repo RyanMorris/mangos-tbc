@@ -52,6 +52,8 @@
 #include "Anticheat/Anticheat.hpp"
 #include "Spells/SpellStacking.h"
 
+#include "Seasonal/SeasonManager.h"
+
 #ifdef BUILD_METRICS
  #include "Metric/Metric.h"
 #endif
@@ -8841,6 +8843,13 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
     {
         if (GetDeathState() == CORPSE)
             speed *= sWorld.getConfig(((Player*)this)->InBattleGround() ? CONFIG_FLOAT_GHOST_RUN_SPEED_BG : CONFIG_FLOAT_GHOST_RUN_SPEED_WORLD);
+
+        // SEASON
+        auto stats = sSeasonManager.GetPlayerStats(GetObjectGuid());
+        if (stats != nullptr)
+        {
+            speed *= stats->moveSpeedBonus;
+        }
     }
 
     // Apply strongest slow aura mod to speed

@@ -65,6 +65,8 @@
 #include "World/WorldState.h"
 #include "Anticheat/Anticheat.hpp"
 
+#include "Seasonal/SeasonManager.h"
+
 #ifdef BUILD_DEPRECATED_PLAYERBOT
 #include "PlayerBot/Base/PlayerbotAI.h"
 #include "PlayerBot/Base/PlayerbotMgr.h"
@@ -662,6 +664,12 @@ Player::Player(WorldSession* session): Unit(), m_taxiTracker(*this), m_mover(thi
 
     m_lastDbGuid = 0;
     m_lastGameObject = false;
+
+    sSeasonManager.InsertPlayerStats(GetObjectGuid(),
+        {
+            .moveSpeedBonus = 3.0f,
+        }
+    );
 }
 
 Player::~Player()
