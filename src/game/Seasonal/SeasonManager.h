@@ -4,6 +4,8 @@
 #include "Common.h"
 #include "Policies/Singleton.h"
 
+typedef uint32 SeasonId;
+
 struct SeasonCharacterStats
 {
     float attackSpeedBonus {0.0f};
@@ -19,11 +21,17 @@ public:
     SeasonManager() = default;
     ~SeasonManager() {};
 
-    bool InsertPlayerStats(ObjectGuid playerId, const SeasonCharacterStats& stats);
-    SeasonCharacterStats* GetPlayerStats(ObjectGuid playerId);
+    // database
+    const char* GetDBQuery();
+    void UpdateCharacterSeasonStats(SeasonId characterGuid, const SeasonCharacterStats& stats);
+
+    // cache
+    bool InsertPlayerStats(SeasonId playerId, std::unique_ptr<QueryResult> queryResult, uint32 timediff);
+    bool InsertPlayerStats(SeasonId playerId, const SeasonCharacterStats& stats);
+    SeasonCharacterStats* GetPlayerStats(SeasonId playerId);
 
 private:
-    std::unordered_map<ObjectGuid, SeasonCharacterStats> playerStatsMap;
+    std::unordered_map<SeasonId, SeasonCharacterStats> playerStatsMap;
 };
 
 #define sSeasonManager MaNGOS::Singleton<SeasonManager>::Instance()

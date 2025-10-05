@@ -664,12 +664,6 @@ Player::Player(WorldSession* session): Unit(), m_taxiTracker(*this), m_mover(thi
 
     m_lastDbGuid = 0;
     m_lastGameObject = false;
-
-    sSeasonManager.InsertPlayerStats(GetObjectGuid(),
-        {
-            .moveSpeedBonus = 3.0f,
-        }
-    );
 }
 
 Player::~Player()
@@ -2305,6 +2299,18 @@ void Player::AddToWorld()
         if (m_items[i])
             m_items[i]->AddToWorld();
     }
+
+    /*auto p = GetObjectGuid();
+    sLog.outString("Player GetObjectGuid %s ", p.GetString().c_str());*/
+
+    auto g = GetGUIDLow();
+    sLog.outString("Player GetGUIDLow %u ", g);
+
+    sSeasonManager.InsertPlayerStats(g,
+        {
+            .moveSpeedBonus = 1.0f,
+        }
+    );
 }
 
 void Player::RemoveFromWorld()
@@ -15475,6 +15481,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
+
+    // SEASON
+    sSeasonManager.InsertPlayerStats(0, holder->GetResult(PLAYER_LOGIN_QUERY_SEASONSTATS), time_diff);
 
     // after spell load
     InitTalentForLevel();

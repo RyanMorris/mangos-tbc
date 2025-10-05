@@ -447,6 +447,9 @@ Unit::Unit() :
 
     m_aoeImmune = false;
     m_chainImmune = false;
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        sLog.outString("m_baseSpeedRun set to %f", m_baseSpeedRun);
 }
 
 Unit::~Unit()
@@ -8845,10 +8848,15 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
             speed *= sWorld.getConfig(((Player*)this)->InBattleGround() ? CONFIG_FLOAT_GHOST_RUN_SPEED_BG : CONFIG_FLOAT_GHOST_RUN_SPEED_WORLD);
 
         // SEASON
-        auto stats = sSeasonManager.GetPlayerStats(GetObjectGuid());
+        auto stats = sSeasonManager.GetPlayerStats(GetGUIDLow());
         if (stats != nullptr)
         {
             speed *= stats->moveSpeedBonus;
+            sLog.outString("GetPlayerStats speed set to %f", speed);
+        }
+        else
+        {
+            sLog.outString("GetPlayerStats GetGUIDLow %u found nothing", GetGUIDLow());
         }
     }
 
@@ -8873,6 +8881,14 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
     }
 
     SetSpeedRate(mtype, speed * ratio, forced);
+}
+
+void Unit::SetBaseRunSpeed(float speed, bool force)
+{
+    m_baseSpeedRun = speed;
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        sLog.outString("Unit::SetBaseRunSpeed set to %f", speed);
 }
 
 float Unit::GetSpeedInMotion() const

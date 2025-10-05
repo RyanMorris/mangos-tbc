@@ -2918,6 +2918,8 @@ void Creature::SetBaseRunSpeed(float speed, bool force)
         m_baseSpeedRun = newSpeed;
         UpdateSpeed(MOVE_RUN, false);
     }
+    if (GetTypeId() == TYPEID_PLAYER)
+        sLog.outString("SetBaseRunSpeed set to %f", newSpeed);
 }
 
 void Creature::LockOutSpells(SpellSchoolMask schoolMask, uint32 duration)
