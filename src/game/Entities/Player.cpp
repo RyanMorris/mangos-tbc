@@ -2299,18 +2299,6 @@ void Player::AddToWorld()
         if (m_items[i])
             m_items[i]->AddToWorld();
     }
-
-    /*auto p = GetObjectGuid();
-    sLog.outString("Player GetObjectGuid %s ", p.GetString().c_str());*/
-
-    auto g = GetGUIDLow();
-    sLog.outString("Player GetGUIDLow %u ", g);
-
-    sSeasonManager.InsertPlayerStats(g,
-        {
-            .moveSpeedBonus = 1.0f,
-        }
-    );
 }
 
 void Player::RemoveFromWorld()
@@ -15483,7 +15471,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
         m_deathState = DEAD;
 
     // SEASON
-    sSeasonManager.InsertPlayerStats(0, holder->GetResult(PLAYER_LOGIN_QUERY_SEASONSTATS), time_diff);
+    sSeasonManager.InsertPlayerStats(guid.GetCounter(), holder->GetResult(PLAYER_LOGIN_QUERY_SEASONSTATS), time_diff);
 
     // after spell load
     InitTalentForLevel();
@@ -15583,6 +15571,12 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     // apply all stat bonuses from items and auras
     SetCanModifyStats(true);
     UpdateAllStats();
+
+    // SEASON
+    UpdateSpeed(MOVE_WALK, true, 1.0f);
+    UpdateSpeed(MOVE_RUN, true, 1.0f);
+    UpdateSpeed(MOVE_SWIM, true, 1.0f);
+    UpdateSpeed(MOVE_FLIGHT, true, 1.0f);
 
     // restore remembered power/health values (but not more max values)
     uint32 savedhealth = fields[49].GetUInt32();

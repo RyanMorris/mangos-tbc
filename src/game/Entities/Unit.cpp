@@ -8851,7 +8851,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
         auto stats = sSeasonManager.GetPlayerStats(GetGUIDLow());
         if (stats != nullptr)
         {
-            speed *= stats->moveSpeedBonus;
+            speed += stats->moveSpeedBonus;
             sLog.outString("GetPlayerStats speed set to %f", speed);
         }
         else

@@ -33,7 +33,9 @@ bool SeasonManager::InsertPlayerStats(SeasonId playerId, std::unique_ptr<QueryRe
         stats.moveSpeedBonus = fields[4].GetFloat();
 
         playerStatsMap[playerId] = stats;
+        return true;
     }
+    return false;
 }
 
 bool SeasonManager::InsertPlayerStats(SeasonId playerId, const SeasonCharacterStats& stats)
