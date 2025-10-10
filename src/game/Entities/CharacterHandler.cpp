@@ -214,7 +214,8 @@ bool LoginQueryHolder::Initialize()
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADMAILEDITEMS,     "SELECT itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, itemTextId, mail_id, item_guid, item_template FROM mail_items JOIN item_instance ON item_guid = guid WHERE receiver = '%u'", m_guid.GetCounter());
     
     // SEASON
-    res &= SetPQuery(PLAYER_LOGIN_QUERY_SEASONSTATS, sSeasonManager.GetDBQuery(), m_guid.GetCounter());
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_SEASONSTATS, sSeasonManager.GetSeasonStatsDBQuery(), m_guid.GetCounter());
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_SEASONTRACKING, sSeasonManager.GetSeasonTrackingDBQuery(), m_guid.GetCounter());
 
     return res;
 }

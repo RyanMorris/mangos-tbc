@@ -15472,6 +15472,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
 
     // SEASON
     sSeasonManager.InsertPlayerStats(guid.GetCounter(), holder->GetResult(PLAYER_LOGIN_QUERY_SEASONSTATS), time_diff);
+    sSeasonManager.InsertPlayerTracking(guid.GetCounter(), holder->GetResult(PLAYER_LOGIN_QUERY_SEASONTRACKING), time_diff);
 
     // after spell load
     InitTalentForLevel();
@@ -16906,6 +16907,9 @@ void Player::SaveToDB()
     _SaveNewInstanceIdTimer();
     m_reputationMgr.SaveToDB();
     GetSession()->SaveTutorialsData();                      // changed only while character in game
+
+    // SEASON
+    sSeasonManager.SaveSeasonTracking(GetGUIDLow(), *(sSeasonManager.GetPlayerTracking(GetGUIDLow())), false);
 
     CharacterDatabase.CommitTransaction();
 
