@@ -305,3 +305,5 @@ bool ChatHandler::HandleWhisperRestrictionCommand(char* args)
 
     return true;
 }
+
+

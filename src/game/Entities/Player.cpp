@@ -20481,6 +20481,18 @@ void Player::RewardSinglePlayerAtKill(Unit* pVictim)
         // normal creature (not pet/etc) can be only in !PvP case
         if (CreatureInfo const* normalInfo = creatureVictim->GetCreatureInfo())
             KilledMonster(normalInfo, creatureVictim);
+
+        // SEASON
+        auto seasonTracking = sSeasonManager.GetPlayerTracking(GetGUIDLow());
+        if (seasonTracking)
+        {
+            if (creatureVictim->IsElite())
+            {
+                seasonTracking->eliteKills += 1;
+            }
+            seasonTracking->totalKills += 1;
+            sLog.outString("season tracking kills: %u", seasonTracking->totalKills);
+        }
     }
 }
 

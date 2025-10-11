@@ -2749,6 +2749,8 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 case 32216:                                 // Victorious
                     if (target->getClass() == CLASS_WARRIOR)
                         target->ModifyAuraState(AURA_STATE_WARRIOR_VICTORY_RUSH, apply);
+                    // testing
+                    sLog.outString("Victorious aura applied or lost ???");
                     return;
                 case 32567:                                 // Green Banish State
                 {
