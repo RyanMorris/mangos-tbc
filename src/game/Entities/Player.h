@@ -79,7 +79,7 @@ typedef std::deque<Mail*> PlayerMails;
 #define PLAYER_EXPLORED_ZONES_SIZE  128
 
 // TODO: Maybe this can be implemented in configuration file.
-#define PLAYER_NEW_INSTANCE_LIMIT_PER_HOUR 5
+#define PLAYER_NEW_INSTANCE_LIMIT_PER_HOUR 20
 
 enum EnvironmentFlags
 {

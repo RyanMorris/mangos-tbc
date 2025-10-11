@@ -28,6 +28,7 @@
 #include "Globals/ObjectMgr.h"
 #include "Maps/MapWorkers.h"
 #include "BattleGround/BattleGroundMgr.h"
+#include "Maps/ScalingManager.h"
 #include <future>
 
 #define CLASS_LOCK MaNGOS::ClassLevelLockable<MapManager, std::recursive_mutex>
@@ -321,6 +322,19 @@ Map* MapManager::CreateInstance(uint32 id, Player* player)
         // solo/perm/group
         NewInstanceId = pSave->GetInstanceId();
         map = FindMap(id, NewInstanceId);
+
+        // set custom scaling, prevent override, unless there is no set scaling, then set from player
+        ScalingManagerState* scaling = sScalingManager.GetInstanceState(NewInstanceId);
+        if (scaling == nullptr)
+        {
+            scaling = sScalingManager.GetPlayerDefState(player->GetObjectGuid());
+            if (scaling != nullptr)
+            {
+                sScalingManager.InsertInstance(NewInstanceId, *scaling);
+                sLog.outString("[DEVLOG] MapManager::CreateInstance persist, for instanceId: %d, playerId: %d", NewInstanceId, player->GetObjectGuid());
+            }
+        }
+
         // it is possible that the save exists but the map doesn't
         if (!map)
             pNewMap = CreateDungeonMap(id, NewInstanceId, pSave->GetDifficulty(), pSave);
@@ -330,6 +344,14 @@ Map* MapManager::CreateInstance(uint32 id, Player* player)
         // if no instanceId via group members or instance saves is found
         // the instance will be created for the first time
         NewInstanceId = GenerateInstanceId();
+
+        // set custom scaling
+        ScalingManagerState* scaling = sScalingManager.GetPlayerDefState(player->GetObjectGuid());
+        if (scaling != nullptr)
+        {
+            sScalingManager.InsertInstance(NewInstanceId, *scaling);
+            sLog.outString("[DEVLOG] MapManager::CreateInstance new, for instanceId: %d, playerId: %d", NewInstanceId, player->GetObjectGuid());
+        }
 
         Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficulty() : player->GetDifficulty();
         pNewMap = CreateDungeonMap(id, NewInstanceId, diff);

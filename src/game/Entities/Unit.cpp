@@ -7450,8 +7450,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellSchoolMask schoolMask, Spel
     int32 DoneTotal = 0;
 
     // Creature damage
-    if (GetTypeId() == TYPEID_UNIT && !((Creature*)this)->IsPet())
-        DoneTotalMod *= Creature::_GetSpellDamageMod(((Creature*)this)->GetCreatureInfo()->Rank);
+    if (GetTypeId() == TYPEID_UNIT /*&& !((Creature*)this)->IsPet()*/ && !((Creature*)this)->IsPlayerControlled())
+    {
+        Map* map = GetMap();
+        uint32 instanceId = map != nullptr ? map->GetInstanceId() : 0;
+        DoneTotalMod *= Creature::_GetSpellDamageMod(((Creature*)this)->GetCreatureInfo()->Rank, instanceId);
+    }
 
     Item* const weapon = GetTypeId() == TYPEID_PLAYER ? ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND) : nullptr;
 
@@ -7932,6 +7936,14 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // ..done pct (by creature type mask)
     DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, creatureTypeMask);
+
+    // Creature damage
+    if (GetTypeId() == TYPEID_UNIT /*&& !((Creature*)this)->IsPet()*/ && !((Creature*)this)->IsPlayerControlled())
+    {
+        Map* map = GetMap();
+        uint32 instanceId = map != nullptr ? map->GetInstanceId() : 0;
+        DoneTotalMod *= Creature::_GetDamageMod(((Creature*)this)->GetCreatureInfo()->Rank, instanceId);
+    }
 
     // special dummys/class scripts and other effects
     // =============================================
@@ -11728,7 +11740,7 @@ Unit* Unit::TakePossessOf(SpellEntry const* spellEntry, SummonPropertiesEntry co
     possessed->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellEntry->Id);   // set the spell id used to create this (may be used for removing corresponding aura
     possessed->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED);          // set flag for client that mean this unit is controlled by a player
     possessed->addUnitState(UNIT_STAT_POSSESSED);                       // also set internal unit state flag
-    possessed->SelectLevel(GetLevel());                                 // set level to same level than summoner TODO:: not sure its always the case...
+    possessed->SelectLevel(0, GetLevel());                              // set level to same level than summoner TODO:: not sure its always the case...
     possessed->SetLinkedToOwnerAura(TEMPSPAWN_LINKED_AURA_OWNER_CHECK | TEMPSPAWN_LINKED_AURA_REMOVE_OWNER); // set what to do if linked aura is removed or the creature is dead.
 
     // important before adding to the map!

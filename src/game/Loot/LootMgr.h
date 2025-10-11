@@ -26,7 +26,7 @@
 #include <vector>
 #include "Entities/Bag.h"
 
-#define LOOT_ROLL_TIMEOUT  (1*MINUTE*IN_MILLISECONDS)
+#define LOOT_ROLL_TIMEOUT  (2*MINUTE*IN_MILLISECONDS)
 
 class Player;
 class Group;
@@ -270,6 +270,7 @@ class LootTemplate
                 // The same for active quests of the player
                 // Rolls an item from the group (if any) and adds the item to the loot
                 void Process(Loot& loot, Player const* lootOwner, bool rate, LootStatsData* lootStats = nullptr) const;
+                void ProcessRoll(Loot& loot, Player const* lootOwner, bool rate, LootStatsData* lootStats = nullptr, LootStats::GroupStats* groupStats = nullptr) const;
                 float RawTotalChance() const;                       // Overall chance for the group (without equal chanced items)
                 float TotalChance() const;                          // Overall chance for the group
 

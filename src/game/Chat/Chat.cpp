@@ -942,6 +942,33 @@ ChatCommand* ChatHandler::getCommandTable()
         { nullptr,         0,                  false,  nullptr,                                        "", nullptr }
     };
 
+    static ChatCommand instanceScalingCommandTable[] =
+    {
+        { "set",            SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingSetCommand,     "", nullptr },
+        { "s",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingSetCommand,     "", nullptr },
+        { "check",          SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingCheckCommand,   "", nullptr },
+        { "c",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingCheckCommand,   "", nullptr },
+        { nullptr,          0,                  false, nullptr,                                           "", nullptr }
+    };
+
+    static ChatCommand instanceScalingHealthDamageTable[] =
+    {
+        { "set",            SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingFullSetCommand,       "", nullptr },
+        { "s",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingFullSetCommand,       "", nullptr },
+        { "check",          SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingFullCheckCommand,     "", nullptr },
+        { "c",              SEC_PLAYER,         false, &ChatHandler::HandleInstanceScalingFullCheckCommand,     "", nullptr },
+        { nullptr,          0,                  false, nullptr,                                                 "", nullptr }
+    };
+
+    static ChatCommand griftCommandTable[] =
+    {
+        { "set",            SEC_PLAYER,         false, &ChatHandler::HandleGriftSetCommand,                 "", nullptr },
+        { "s",              SEC_PLAYER,         false, &ChatHandler::HandleGriftSetCommand,                 "", nullptr },
+        { "check",          SEC_PLAYER,         false, &ChatHandler::HandleGriftCheckCommand,               "", nullptr },
+        { "c",              SEC_PLAYER,         false, &ChatHandler::HandleGriftCheckCommand,               "", nullptr },
+        { nullptr,          0,                  false, nullptr,                                             "", nullptr }
+    };
+
     static ChatCommand commandTable[] =
     {
         { "anticheat",      SEC_GAMEMASTER,     true,  nullptr,                                        "", anticheatCommandTable},
@@ -1054,6 +1081,11 @@ ChatCommand* ChatHandler::getCommandTable()
         { "mmap",           SEC_GAMEMASTER,     false, nullptr,                                        "", mmapCommandTable },
         { "worldstate",     SEC_ADMINISTRATOR,  false, nullptr,                                        "", worldStateTable },
         { "loot",           SEC_GAMEMASTER,     true,  nullptr,                                        "", lootCommandTable },
+
+        { "is",             SEC_PLAYER,         false, nullptr,                                        "", instanceScalingCommandTable },
+        { "ishd",           SEC_PLAYER,         false, nullptr,                                        "", instanceScalingHealthDamageTable },
+        { "gr",             SEC_PLAYER,         false, nullptr,                                        "", griftCommandTable },
+
 #ifdef BUILD_DEPRECATED_PLAYERBOT
         { "bot",            SEC_PLAYER,         false, &ChatHandler::HandlePlayerbotCommand,           "", nullptr },
 #endif

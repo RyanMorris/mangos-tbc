@@ -7642,7 +7642,7 @@ bool Spell::DoSummonCritter(CreatureSummonPositions& list, SummonPropertiesEntry
     critter->SetOwnerGuid(m_caster->GetObjectGuid());
     critter->setFaction(m_caster->GetFaction());
     critter->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-    critter->SelectLevel();                                 // some summoned critters have different from 1 DB data for level/hp
+    critter->SelectLevel(0);                                 // some summoned critters have different from 1 DB data for level/hp
     const CreatureInfo* info = critter->GetCreatureInfo();
 
     critter->SetUInt32Value(UNIT_FIELD_FLAGS, info->UnitFlags);
@@ -7928,9 +7928,16 @@ void Spell::EffectTransmitted(SpellEffectIndex eff_idx)
             int32 lastSec = 0;
             switch (urand(0, 3))
             {
-                case 0: lastSec =  3; break;
+                // cmangos original values
+                /*case 0: lastSec =  3; break;
                 case 1: lastSec =  7; break;
                 case 2: lastSec = 13; break;
+                case 3: lastSec = 17; break;*/
+
+                // custom
+                case 0: lastSec = 13; break;
+                case 1: lastSec = 14; break;
+                case 2: lastSec = 16; break;
                 case 3: lastSec = 17; break;
             }
 
