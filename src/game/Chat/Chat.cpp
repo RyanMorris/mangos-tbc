@@ -969,6 +969,12 @@ ChatCommand* ChatHandler::getCommandTable()
         { nullptr,          0,                  false, nullptr,                                             "", nullptr }
     };
 
+    static ChatCommand resetFreeCommandTable[] =
+    {
+        { "talents",    SEC_PLAYER,         true,  &ChatHandler::HandleResetTalentsFreeCommand,    "", nullptr },
+        { nullptr,          0,              false, nullptr,                                        "", nullptr }
+    };
+
     static ChatCommand commandTable[] =
     {
         { "anticheat",      SEC_GAMEMASTER,     true,  nullptr,                                        "", anticheatCommandTable},
@@ -1085,6 +1091,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "is",             SEC_PLAYER,         false, nullptr,                                        "", instanceScalingCommandTable },
         { "ishd",           SEC_PLAYER,         false, nullptr,                                        "", instanceScalingHealthDamageTable },
         { "gr",             SEC_PLAYER,         false, nullptr,                                        "", griftCommandTable },
+        { "resetfree",      SEC_PLAYER,         false, nullptr,                                        "", resetFreeCommandTable },
 
 #ifdef BUILD_DEPRECATED_PLAYERBOT
         { "bot",            SEC_PLAYER,         false, &ChatHandler::HandlePlayerbotCommand,           "", nullptr },

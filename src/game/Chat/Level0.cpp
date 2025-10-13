@@ -628,3 +628,17 @@ bool ChatHandler::HandleGriftCheckCommand(char* /*args*/)
 
     return true;
 }
+
+bool ChatHandler::HandleResetTalentsFreeCommand(char* args)
+{
+    Player* player = m_session->GetPlayer();
+    if (player == nullptr)
+    {
+        PSendSysMessage("HandleResetTalentsFreeCommand:: Failed to get player");
+        return false;
+    }
+    player->resetTalents(true);
+
+    ChatHandler(player).SendSysMessage(LANG_RESET_TALENTS);
+    return true;
+}

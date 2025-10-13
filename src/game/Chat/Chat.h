@@ -831,6 +831,8 @@ class ChatHandler
         bool HandleInstanceScalingFullCheckCommand(char* args);
         bool HandleGriftSetCommand(char* args);
         bool HandleGriftCheckCommand(char* args);
+        // free talent resets
+        bool HandleResetTalentsFreeCommand(char* args);
 
         Player*   getSelectedPlayer() const;
         Unit*     getSelectedUnit(bool self = true) const;
